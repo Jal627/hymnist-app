@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Hymnist</title>
+<link rel="icon" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f1ec;--ink:#1d2140;--mut:#6b6f8a;--card:#fff;--line:#d9d5cc;--gold:#b7791f;--stage:#1d2140;--stage-ink:#f4efe4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12142a;--ink:#ece8de;--mut:#9a9db8;--card:#1b1e3a;--line:#2d3150;--stage:#0a0b1a}}
+:root[data-theme="dark"]{--bg:#12142a;--ink:#ece8de;--mut:#9a9db8;--card:#1b1e3a;--line:#2d3150;--stage:#0a0b1a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+#topbar{max-width:640px;margin:0 auto;padding:12px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font:600 22px "Newsreader",Georgia,serif;margin:0}
+h1 img{display:block;height:40px;width:auto}
+#stageLogo{position:absolute;bottom:10px;right:12px;width:38px;height:auto;opacity:.5;pointer-events:none}
+body.disp #stageLogo{width:clamp(38px,5vw,66px);bottom:16px;right:16px}
+#stage{background:var(--stage);color:var(--stage-ink);border-radius:10px;aspect-ratio:16/9;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:5%;position:relative;font-family:"Newsreader",Georgia,serif}
+#stage:fullscreen{border-radius:0;aspect-ratio:auto}
+/* Operator full screen: the whole page goes fullscreen, but only the lyrics stage, its
+   controls, and the Listen panel (pinned to the bottom) stay visible — everything else
+   (settings, setlist/library, nav) is hidden for the duration. */
+body.opFull #topbar,body.opFull #nav{display:none}
+body.opFull main{max-width:none;height:100vh;height:100dvh;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+body.opFull main>*{display:none}
+body.opFull #stage{display:flex;flex:1;min-height:140px;border-radius:10px;aspect-ratio:auto}
+body.opFull #stageControls{display:flex;flex:none;margin:0}
+body.opFull #listenCard{display:block;flex:none;margin:0;max-height:34vh;overflow:auto}
+#cur{font-size:clamp(20px,5.2vw,44px);line-height:1.2;font-weight:600;transition:opacity .25s}
+#nxt{font-size:clamp(14px,3vw,26px);opacity:.45;margin-top:.7em}
+#ttl{position:absolute;bottom:8px;left:12px;font:12px "Instrument Sans",sans-serif;opacity:.5}
+#stage.blank #cur,#stage.blank #nxt{opacity:0}
+.row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+#stageControls{justify-content:center}
+button{font:600 15px "Instrument Sans",sans-serif;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:44px;cursor:pointer}
+button.p{background:var(--gold);border-color:var(--gold);color:#fff}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.on{background:#b3261e;border-color:#b3261e;color:#fff}
+.grow{flex:1}
+body.disp{background:var(--stage)}
+body.disp main{padding:0;max-width:none}
+body.disp main>*:not(#stage){display:none}
+body.disp #topbar{display:none}
+body.disp #stage{position:fixed;inset:0;border-radius:0;aspect-ratio:auto;z-index:9;cursor:pointer}
+body.disp #cur{font-size:clamp(32px,6.5vw,110px)}
+body.disp #nxt{font-size:clamp(18px,3.2vw,56px)}
+input{width:100%;font:16px "Instrument Sans",sans-serif;padding:11px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px}
+.card h2{font:600 15px "Instrument Sans",sans-serif;margin:0 0 6px}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cardhead h2{margin:0}
+.cardhead button{padding:8px 12px;min-height:36px}
+.modal{position:fixed;inset:0;background:rgba(10,11,26,.55);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.modalPanel{background:var(--card);border:1px solid var(--line);border-radius:14px 14px 0 0;max-width:640px;width:100%;max-height:82vh;overflow:auto;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.modalPanel .cardhead button[aria-label="Close"]{padding:6px 11px;min-height:36px}
+@media (min-width:660px){.modal{align-items:center;padding:16px}.modalPanel{border-radius:14px;max-height:80vh}}
+.row input{flex:1;width:auto}
+#libPanel{display:flex;flex-direction:column;overflow:hidden}
+#libPanel .cardhead,#libPanel>#cs{flex:none}
+#lib{flex:1;min-height:80px;overflow-y:auto;margin-top:6px}
+#addSong{flex:none;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+#planPanel{display:flex;flex-direction:column;overflow:hidden}
+#planScroll{overflow-y:auto;flex:1;min-height:40px}
+#evButtons{flex:none;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.evTag{color:var(--mut);font-size:14px}
+#heard{color:var(--mut);min-height:1.5em;font-size:15px}
+#conf{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}
+#conf i{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+.it{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
+.warn{color:#b3261e;font-weight:600}
+.chordIcon{font-size:13px;vertical-align:1px}
+.ccliIcon{font-size:10px;font-weight:700;letter-spacing:.2px;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:1px 4px;vertical-align:1px}
+.badge{display:inline-flex;align-items:center;gap:4px;font:600 12px "Instrument Sans",sans-serif;color:#b3261e;background:rgba(179,38,30,.1);border:1px solid rgba(179,38,30,.35);border-radius:6px;padding:2px 6px;margin-left:6px}
+.it:last-child{border:0}
+.it.now .grow{font-weight:600;color:var(--gold)}
+.it small{color:var(--mut)}
+.it button{padding:6px 10px;min-height:40px}
+button:disabled{opacity:.45}
+textarea{width:100%;font:16px "Instrument Sans",sans-serif;padding:11px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-top:8px;resize:vertical}
+textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+p.note{color:var(--mut);font-size:14px;margin:8px 0 0}
+body.mus main>*:not(#mus){display:none}
+body.mus #topbar{display:none}
+#mus[hidden]{display:none}
+select{font:16px "Instrument Sans",sans-serif;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+#mt{font:600 22px "Newsreader",Georgia,serif;margin:10px 0 4px}
+#mus .ln{padding:6px 8px;border-radius:8px;opacity:.5;scroll-margin:30vh 0}
+#mus .ln.on{opacity:1;background:var(--card);outline:2px solid var(--gold)}
+.sg{display:inline-flex;flex-direction:column;vertical-align:top}
+.ch{display:flex;flex-direction:column;min-height:1.3em;padding-right:8px;color:var(--gold);font:600 16px "Instrument Sans",sans-serif;white-space:pre}
+.ch small{font-weight:400;font-size:11px;color:var(--mut)}
+.tx{font:21px/1.3 "Newsreader",Georgia,serif;white-space:pre-wrap}
+.cs{display:inline-block;margin:2px 12px 2px 0;font:14px ui-monospace,monospace}
+#prayerView{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;transition:opacity .4s;pointer-events:none;padding:5%;text-align:center}
+#stage.prayer #cur,#stage.prayer #nxt{opacity:0}
+#stage.prayer #prayerView{opacity:1}
+#ptxt{font-size:clamp(22px,4.5vw,52px);font-weight:600}
+.swrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.sw{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;background-size:cover}
+.sw.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.swColor{-webkit-appearance:none;appearance:none;overflow:hidden;background:var(--card)}
+.swColor::-webkit-color-swatch-wrapper{padding:2px}
+.swColor::-webkit-color-swatch{border:0;border-radius:50%}
+.swColor::-moz-color-swatch{border:0;border-radius:50%}
+button.sw{font-size:16px;display:flex;align-items:center;justify-content:center;background:var(--card)}
+.swlbl{font-size:12px;color:var(--mut);display:block;text-align:center;margin-top:3px;width:38px}
+#nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;gap:6px;max-width:640px;margin:0 auto;padding:8px 16px;background:var(--bg)}
+#nav button{flex:1;padding:8px 6px}
+#nav button.on{background:var(--gold);border-color:var(--gold);color:#fff}
+body.disp #nav{position:fixed;top:0;left:0;right:0;max-width:none;margin:0;background:rgba(10,11,26,.85);opacity:0;pointer-events:none;transition:opacity .25s}
+body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
+</style></head><body>
+<div id="topbar"><h1><img src="logo.png" alt="Hymnist"></h1><button id="settingsBtn" title="Settings" aria-label="Settings" aria-expanded="false" style="font-size:22px">⚙</button></div>
+<nav id="nav" aria-label="Views"><button data-v="op">Operator<span id="nb" class="badge" hidden></span></button><button data-v="mus">Musicians</button><button data-v="disp">Projector</button></nav>
+<main>
+<div id="stage"><div id="cur">Sing or type a line to begin</div><div id="nxt"></div><div id="ttl"></div>
+<div id="prayerView"><div id="ptxt">Let's Pray</div></div>
+<img id="stageLogo" src="stage-logo.png" alt=""></div>
+<div class="row" id="stageControls">
+<button id="prev" aria-label="Previous line">Back</button>
+<button id="next" class="p">Next line</button>
+<button id="blank">Blank</button>
+<button id="prayerBtn">Prayer</button>
+<button id="proj">Open projector</button>
+<button id="fs" title="Full screen" aria-label="Full screen">⛶</button>
+</div>
+<div class="card" id="appearance" hidden><h2>Settings</h2>
+<p class="note" style="margin:0 0 4px">Background for the projector screen</p>
+<div class="swrow" id="bgsw"></div>
+<div class="swrow">
+<span><input type="color" id="bgColorPick" class="sw swColor" aria-label="Custom color" title="Custom color" value="#1d2140"><span class="swlbl">Custom color</span></span>
+<span><button type="button" class="sw" id="bgImagePick" aria-label="Custom image" title="Custom image">🖼️</button><span class="swlbl">Custom image</span><input type="file" id="bgImageFile" accept="image/*" hidden></span>
+</div>
+<p class="note" id="bgImageStatus" style="margin-top:0;min-height:1.3em"></p>
+<p class="note" style="margin-top:12px">Message shown when Prayer is on</p>
+<input id="prayerMsgIn" placeholder="Let's Pray" autocomplete="off">
+<p class="note" style="margin-top:12px">Speech recognition</p>
+<select id="micMode" aria-label="Speech recognition mode">
+<option value="auto">Automatic</option>
+<option value="offline">Always on-device</option>
+<option value="online">Online</option>
+</select>
+<p class="note" id="micModeDesc" style="margin-top:4px"></p>
+<input id="onlineKeyIn" placeholder="Online speech API key (not connected yet)" autocomplete="off" style="margin-top:8px">
+<p class="note" style="margin-top:12px">CCLI license</p>
+<p class="note" style="margin:0 0 4px">Enter your church's CCLI license number to unlock songs from the CCLI Top 100 catalog for adding to setlists. (Verifying it with CCLI isn't connected yet — this records the number locally and gates the catalog, ready for that integration.)</p>
+<input id="ccliNumberIn" placeholder="CCLI license number" autocomplete="off">
+<p class="note" id="ccliStatus" style="margin-top:4px"></p>
+<p class="note" style="margin-top:12px">Sync status</p>
+<div id="sync" class="note" style="margin-top:0">Saved on this device only.</div></div>
+<div class="card" id="listenCard">
+<h2>Listen</h2>
+<div class="row" style="margin:0"><button id="mic" title="Start microphone" aria-label="Start microphone"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><input id="sim" class="grow" placeholder="Or type words as if sung, e.g. I once was lost but now" autocomplete="off"></div>
+<div id="heard">Nothing heard yet.</div>
+<div id="conf"><i></i></div>
+<p class="note" id="msg">Matching runs only against the setlist below. Manual buttons always override.</p>
+</div>
+<div class="card">
+<div class="cardhead"><div><h2 id="setTitle">Today's setlist</h2><div id="setWhen" class="evTag"></div></div>
+<div class="row" style="margin:0;gap:6px"><button id="planOpen" aria-haspopup="dialog" title="Plan Ahead" aria-label="Plan Ahead">📅</button><button id="libOpen" aria-haspopup="dialog" title="Song Library" aria-label="Song Library">📚</button></div></div>
+<div id="set"></div>
+<input id="q" placeholder="Search songs to add to this setlist" autocomplete="off" style="margin-top:10px">
+<div id="sug"></div></div>
+<div id="libModal" class="modal" hidden role="dialog" aria-modal="true" aria-label="Song library">
+<div id="libPanel" class="modalPanel">
+<div class="cardhead"><h2>Song library</h2><div class="row" style="margin:0;gap:6px"><button id="addSongOpen" aria-label="Add a song" title="Add a song" aria-expanded="false">+</button><button id="libClose" aria-label="Close">✕</button></div></div>
+<input id="cs" placeholder="Search all songs" autocomplete="off" style="margin-top:8px">
+<div id="lib"></div>
+<div id="addSong" hidden>
+<h2 id="fh">Add a song</h2>
+<input id="ft" placeholder="Song title" autocomplete="off">
+<textarea id="fl" rows="5" placeholder="Paste lyrics, one line per row. Optional chords in brackets, like [G]Amazing [C]grace"></textarea>
+<div class="row"><button class="p" id="fsave">Save song</button><button id="fdel" hidden>Delete</button><button id="fcancel" hidden>Cancel</button></div>
+<p class="note" id="fmsg">Only add lyrics your church is licensed to display.</p>
+</div>
+</div></div>
+<div id="planModal" class="modal" hidden role="dialog" aria-modal="true" aria-label="Upcoming setlists">
+<div id="planPanel" class="modalPanel">
+<div id="planScroll">
+<div class="cardhead"><h2>Upcoming setlists</h2><button id="planClose" aria-label="Close">✕</button></div>
+<div id="planList" style="margin-top:6px"></div>
+<button id="planPastToggle" class="grow" hidden style="margin-top:6px"></button>
+<div id="planPast"></div>
+<p class="note" id="evh" style="margin-top:16px;font-weight:600;color:var(--ink)">New setlist</p>
+<input id="evName" placeholder="Name, e.g. Sunday AM, Youth Group" autocomplete="off">
+<div class="row">
+<input id="evDate" type="date" aria-label="Date (optional)">
+<input id="evTime" type="time" aria-label="Time (optional)">
+</div>
+<p class="note">Leave the date blank for an unscheduled, always-available setlist.</p>
+<div id="songsPanel" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px">
+<h2 id="songsH" style="margin:0 0 6px">Songs</h2>
+<input id="songsSearch" placeholder="Search all songs" autocomplete="off">
+<div id="songsCurrent" style="margin-top:6px"></div>
+<div id="songsLib" style="margin-top:6px"></div>
+</div>
+</div>
+<div class="row" id="evButtons"><button class="p" id="evSave">Save setlist</button><button id="evDel" hidden>Delete</button><button id="evCancel">Cancel</button></div>
+<p class="note" id="evMsg" style="min-height:1.3em"></p>
+</div></div>
+<div id="mus" hidden>
+<div class="row"><select id="inst" aria-label="Instrument"><option value="guitar">Guitar</option><option value="keys">Piano / Keys</option><option value="bass">Bass</option><option value="vocal">Vocals</option></select>
+<button id="tdn" aria-label="Transpose down">&minus;</button><span id="tk" style="align-self:center;min-width:64px;text-align:center">Key +0</span><button id="tup" aria-label="Transpose up">+</button></div>
+<div id="mt"></div><div id="leg"></div><div id="chart"></div>
+</div>
+</main>
+<script>
+const SONGS=[
+{t:"Amazing Grace",l:["[G]Amazing [G7]grace how [C]sweet the [G]sound","That [G]saved a [Em]wretch like [D]me","I [G]once was [G7]lost but [C]now am [G]found","Was [G]blind but [D]now I [G]see","'Twas [G]grace that [G7]taught my [C]heart to [G]fear","And [G]grace my [Em]fears [D]relieved","How [G]precious [G7]did that [C]grace [G]appear","The [G]hour I [D]first [G]believed"]},
+{t:"It Is Well",l:["When peace like a river attendeth my way","When sorrows like sea billows roll","Whatever my lot thou hast taught me to say","It is well it is well with my soul"]},
+{t:"Holy, Holy, Holy",l:["Holy holy holy Lord God Almighty","Early in the morning our song shall rise to thee","Holy holy holy merciful and mighty","God in three persons blessed Trinity"]}];
+const plain=x=>x.replace(/\[[^\]]*\]/g,"");
+const hasChords=s=>s.l.some(l=>/\[[^\]]+\]/.test(l));
+const chordIcon=s=>hasChords(s)?' <span class="chordIcon" title="Includes chords" aria-label="Includes chords">🎸</span>':"";
+// Songs added from the CCLI Top 100 catalog (song.cat is set) are the ones a church needs
+// a CCLI license to display; the original seed hymns and anything typed in by hand aren't
+// flagged, since we have no way to know their licensing.
+const needsCcli=s=>s.cat!=null;
+const ccliIcon=s=>needsCcli(s)?' <span class="ccliIcon" title="Requires a CCLI license to display" aria-label="Requires a CCLI license to display">CCLI</span>':"";
+const norm=t=>t.toLowerCase().replace(/[^a-z\s]/g,"").split(/\s+/).filter(Boolean);
+const $=id=>document.getElementById(id);
+const KEY="lyricline.v1";
+const USAGE_KEY="lyricline.usage";
+let usage={};
+try{usage=JSON.parse(localStorage.getItem(USAGE_KEY))||{}}catch(e){usage={}}
+function bumpUsage(id){usage[id]=(usage[id]||0)+1;try{localStorage.setItem(USAGE_KEY,JSON.stringify(usage))}catch(e){}}
+// Projector background presets. "default" means no inline style, so the theme's own stage color shows.
+const BGS={
+  default:{label:"Theme",css:""},
+  charcoal:{label:"Charcoal",css:"#17181d"},
+  navy:{label:"Midnight",css:"linear-gradient(160deg,#1b2a4a,#0a1326)"},
+  plum:{label:"Plum",css:"linear-gradient(160deg,#3b1f3d,#160a18)"},
+  forest:{label:"Forest",css:"linear-gradient(160deg,#1d3b2f,#0a1712)"},
+  gold:{label:"Warm gold",css:"linear-gradient(160deg,#5c3a12,#241404)"},
+  black:{label:"Black",css:"#000"}
+};
+let bg="default",prayer=false,prayerMsg="Let's Pray";
+let micMode="auto",onlineKey=""; // "auto" | "offline" | "online" — online has no backend wired up yet, see startOnlineAsr()
+let ccliNumber=""; // no CCLI vendor API wired up yet — this just records the number and gates adding CCLI Top 100 songs locally, see needsCcli()/ccliUnlocked() below
+const ccliUnlocked=()=>!!ccliNumber.trim();
+// bg is either a preset id (a key in BGS), "custom:<css color>" for a hand-picked solid
+// color, or "image:<url>" for a church-uploaded photo (the url points at an asset
+// uploaded through the assets capability; see bgImagePick's handler below).
+function applyBg(st,id){
+  st.style.backgroundImage="";st.style.backgroundSize="";st.style.backgroundPosition="";
+  if(id&&id.startsWith("custom:")){st.style.background=id.slice(7);return}
+  if(id&&id.startsWith("image:")){st.style.background="";st.style.backgroundImage='url("'+id.slice(6)+'")';st.style.backgroundSize="cover";st.style.backgroundPosition="center";return}
+  const css=(BGS[id]||BGS.default).css;st.style.background=css||""
+}
+function renderSwatches(){
+  const box=$("bgsw");if(!box)return;
+  box.innerHTML=Object.entries(BGS).map(([id,v])=>
+    `<span><button class="sw${id===bg?" sel":""}" style="background:${v.css||"var(--stage)"}" aria-label="${esc(v.label)} background" title="${esc(v.label)}" onclick="pickBg('${id}')"></button><span class="swlbl">${esc(v.label)}</span></span>`).join("");
+  const cp=$("bgColorPick");
+  if(cp){if(bg.startsWith("custom:"))cp.value=bg.slice(7);cp.classList.toggle("sel",bg.startsWith("custom:"))}
+  const ip=$("bgImagePick");
+  if(ip)ip.classList.toggle("sel",bg.startsWith("image:"));
+}
+function saveAppearance(){try{localStorage.setItem("lyricline.appearance",JSON.stringify({bg,prayerMsg,micMode,onlineKey,ccliNumber}))}catch(e){}}
+function pickBg(id){bg=id;renderSwatches();saveAppearance();render()}
+const MIC_MODE_DESC={
+  auto:"Fast built-in recognition when the browser supports it, on-device fallback otherwise.",
+  offline:"Slower, but never sends audio anywhere — works with no internet after the first load.",
+  online:"Fastest on every browser, needs a speech-service API key — not connected yet."
+};
+function renderMicMode(){
+  const sel=$("micMode");if(sel)sel.value=micMode;
+  const d=$("micModeDesc");if(d)d.textContent=MIC_MODE_DESC[micMode]||"";
+  const k=$("onlineKeyIn");if(k)k.value=onlineKey;
+}
+function renderCcliStatus(){
+  const el=$("ccliStatus");if(!el)return;
+  el.textContent=ccliUnlocked()?"Unlocked — CCLI Top 100 songs can be added with license #"+ccliNumber+".":"Locked — CCLI Top 100 catalog songs can't be added until a license number is entered above.";
+  el.classList.toggle("warn",!ccliUnlocked());
+}
+let mus=location.hash==="#musician",isDisp=location.hash==="#display"||mus;
+let view=mus?"mus":isDisp?"disp":"op";
+let bc=null;try{bc=new BroadcastChannel("lyricline")}catch(e){}
+let quiet=false;
+function liveState(){
+  const song=ACTIVE[cur.s],on=song&&cur.l>=0;
+  return{c:on?plain(song.l[cur.l]):"",n:on&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"",t:on?song.t:"",b:blank,s:on?song.l:[],i:cur.l,bg,pr:prayer,pm:prayerMsg};
+}
+function send(){
+  if(isDisp)return;
+  const v=liveState();
+  try{bc&&bc.postMessage(v)}catch(e){}
+  if(!quiet)pushLive(v);
+}
+// Cloud sync through the artifact database: library and setlist in one doc, live line in another.
+let db=null,libRef=null,liveRef=null,liveSub=null,dbP=null;
+let lastLib="",pLib=null,wLib=false,lastLive="",pLive=null,wLive=false;
+function setSync(t){const e=document.getElementById("sync");if(e)e.textContent=t}
+function syncErr(e){setSync(e&&e.code==="invalid_argument"?"View only. Ask the owner for Contributor access to edit.":"Sync problem ("+((e&&e.code)||"error")+"). Changes are still saved on this device.")}
+function pushLib(){
+  if(!libRef||isDisp)return;
+  const j=JSON.stringify({lib,events});
+  if(j===lastLib)return;
+  pLib=j;flushLib();
+}
+async function flushLib(){
+  if(wLib)return;wLib=true;
+  try{while(pLib&&pLib!==lastLib){const j=pLib;pLib=null;lastLib=j;await libRef.set(JSON.parse(j));setSync("Synced to your church account.")}}
+  catch(e){syncErr(e)}
+  wLib=false;
+}
+function pushLive(v){
+  if(!liveRef)return;
+  if(JSON.stringify(v)===lastLive)return;
+  pLive=v;flushLive();
+}
+async function flushLive(){
+  if(wLive)return;wLive=true;
+  try{while(pLive){const v=pLive;pLive=null;lastLive=JSON.stringify(v);await liveRef.set({...v,at:Date.now()})}}
+  catch(e){syncErr(e)}
+  wLive=false;
+}
+function subLive(){
+  if(!liveRef||liveSub)return;
+  liveSub=liveRef.onSnapshot(sn=>{if(sn.exists){const d=sn.data();if(view==="mus"){MV=d;renderMus()}else if(view==="disp")show({c:d.c,n:d.n,t:d.t,b:d.b,bg:d.bg,pr:d.pr,pm:d.pm});setSync("Connected to the operator.")}},syncErr);
+}
+function subLib(){
+  libRef.onSnapshot(sn=>{
+    // Skip remote updates while our own change is still being written. Without this,
+    // a lagging snapshot (still showing the pre-save state) can land in the gap
+    // between a local save() and the write actually confirming, silently reverting
+    // whatever the user just saved (e.g. a brand-new setlist) back to the old data.
+    if(wLib||pLib)return;
+    if(!sn.exists){pushLib();return}
+    const m=migrateData(sn.data());
+    if(!m||!Array.isArray(m.lib)||!Array.isArray(m.events)||!m.events.length)return;
+    const j=JSON.stringify(m);
+    if(j===lastLib){setSync("Synced to your church account.");return}
+    // sn.data() (and anything inside it) comes straight from the db capability and may be
+    // frozen/read-only. Re-parsing the JSON we just built gives fresh, ordinary, mutable
+    // arrays/objects — otherwise later code like events.push(...) throws (observed: "can't
+    // define array index property past the end of an array with non-writable length").
+    const fresh=JSON.parse(j);
+    lastLib=j;lib=fresh.lib;events=fresh.events;
+    if(!events.find(e=>e.id===activeEventId))activeEventId=lastAutoId=autoPickEvent();
+    setlist=activeEvent().setlist;
+    try{localStorage.setItem(KEY,j)}catch(e){}
+    quiet=true;rebuild();render();renderEditor();renderPlan();updateSetHeader();quiet=false;
+    setSync("Synced to your church account.");
+  },syncErr);
+}
+async function initDb(){
+  try{
+    const c=window.claude&&claude.use?await claude.use("db"):null;
+    if(!c){setSync("Cloud sync isn't available here. Saved on this device only.");return}
+    db=c;libRef=db.doc("church/library");liveRef=db.doc("church/live");
+    subLib();subLive();
+  }catch(e){syncErr(e)}
+}
+// ---- musician view: chords per instrument, transposable ----
+const SH=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FL=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+const pcs=n=>{const i=SH.indexOf(n);return i<0?FL.indexOf(n):i};
+const QI={"":[0,4,7],m:[0,3,7],"7":[0,4,7,10],maj7:[0,4,7,11],m7:[0,3,7,10],sus4:[0,5,7],sus:[0,5,7],sus2:[0,2,7],dim:[0,3,6],aug:[0,4,8],add9:[0,4,7,2],"2":[0,2,7],"4":[0,5,7]};
+const GS={C:"x32010",D:"xx0232",E:"022100",F:"133211",G:"320003",A:"x02220",B:"x24442","C#":"x46664","D#":"x68886","F#":"244322","G#":"466544","A#":"x13331",Cm:"x35543",Dm:"xx0231",Em:"022000",Fm:"133111",Gm:"355333",Am:"x02210",Bm:"x24432","C#m":"x46654","D#m":"x68876","F#m":"244222","G#m":"466444","A#m":"x13321",C7:"x32310",D7:"xx0212",E7:"020100",G7:"320001",A7:"x02020",B7:"x21202",Am7:"x02010",Dm7:"xx0211",Em7:"022030",Cmaj7:"x32000",Gmaj7:"320002",Dmaj7:"xx0222",Amaj7:"x02120",Fmaj7:"xx3210",Dsus4:"xx0233",Asus4:"x02230",Esus4:"022200",Dsus2:"xx0230",Asus2:"x02200",Csus2:"x30010"};
+let MV=null,K=0;
+function tr(c,k){
+  const m=/^([A-G][#b]?)([^/]*)(?:\/([A-G][#b]?))?$/.exec(c);
+  if(!m)return{n:c,r:null};
+  const f=/b/.test(m[1]+(m[3]||"")),T=x=>x?(f?FL:SH)[(pcs(x)+k+120)%12]:null;
+  const r=T(m[1]),b=T(m[3]);
+  return{r,q:m[2],b,f,n:r+m[2]+(b?"/"+b:"")};
+}
+function notes(x){
+  const iv=QI[x.q]||(x.q[0]==="m"&&!x.q.startsWith("maj")?[0,3,7]:[0,4,7]),N=x.f?FL:SH,r=pcs(x.r);
+  const out=iv.map(i=>N[(r+i)%12]);
+  if(x.b&&x.b!==x.r)out.unshift(x.b);
+  return out;
+}
+function chordLabel(c,inst,k){
+  const x=tr(c,k);
+  if(!x.r)return esc(c);
+  if(inst==="bass")return"<b>"+esc(x.b||x.r)+"</b>";
+  if(inst==="keys")return"<b>"+esc(x.n)+"</b><small>"+notes(x).join(" ")+"</small>";
+  return"<b>"+esc(x.n)+"</b>";
+}
+function lineHtml(raw,inst,k){
+  const p=raw.split(/\[([^\]]*)\]/),segs=[{ch:"",tx:p[0]}];
+  for(let j=1;j<p.length;j+=2)segs.push({ch:p[j],tx:p[j+1]||""});
+  return segs.filter(g=>g.ch||g.tx).map(g=>`<span class="sg">${inst==="vocal"?"":`<span class="ch">${g.ch?chordLabel(g.ch,inst,k):"&nbsp;"}</span>`}<span class="tx">${esc(g.tx)||"&nbsp;"}</span></span>`).join("");
+}
+function legend(lines,inst,k){
+  if(inst!=="guitar")return"";
+  const seen=[];
+  lines.forEach(l=>{for(const m of l.matchAll(/\[([^\]]*)\]/g)){const x=tr(m[1],k);if(x.r&&!seen.some(y=>y.n===x.n))seen.push(x)}});
+  return seen.map(x=>{
+    const base=SH[pcs(x.r)],minor=x.q[0]==="m"&&!x.q.startsWith("maj");
+    let sh=GS[base+x.q],ap="";
+    if(!sh){sh=GS[base+(minor?"m":"")];ap="\u2248"}
+    return`<span class="cs"><b>${esc(x.n)}</b> ${sh?ap+sh:"\u2014"}</span>`}).join("");
+}
+function renderMus(){
+  const inst=$("inst").value;
+  $("tk").textContent="Key "+(K>0?"+":"")+K;
+  if(!MV||!MV.s||!MV.s.length){$("mt").textContent="Waiting for the operator";$("leg").innerHTML="";$("chart").innerHTML="";return}
+  $("mt").textContent=MV.t;
+  $("leg").innerHTML=legend(MV.s,inst,K);
+  $("chart").innerHTML=MV.s.map((l,n)=>`<div class="ln${n===MV.i?" on":""}" id="ln${n}">${lineHtml(l,inst,K)}</div>`).join("");
+  const el=document.getElementById("ln"+MV.i);
+  if(el)el.scrollIntoView({block:"center",behavior:"smooth"});
+}
+function setView(v){
+  const prev=view;
+  if(prev==="op"&&v!=="op")MV=liveState();
+  view=v;isDisp=v!=="op";mus=v==="mus";
+  document.body.classList.toggle("disp",v==="disp");
+  document.body.classList.toggle("mus",v==="mus");
+  $("mus").hidden=v!=="mus";
+  document.querySelectorAll("#nav button").forEach(b=>{const on=b.dataset.v===v;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false")});
+  if(v!=="disp"&&document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  if(v==="op"){quiet=true;render();quiet=false;renderEditor()}
+  else{
+    if(v==="mus"){try{const x=localStorage.getItem("lyricline.inst");if(x)$("inst").value=x}catch(e){}renderMus()}
+    else{
+      const st=prev==="op"?liveState():MV;
+      if(st&&st.c)show(st);
+      else{$("cur").textContent="Waiting for the operator";$("nxt").textContent="";$("ttl").textContent="";$("stage").classList.remove("blank")}
+    }
+    try{bc&&bc.postMessage({hello:1})}catch(e){}
+  }
+}
+function show(v){
+  const st=$("stage");
+  $("cur").textContent=v.c||"";$("nxt").textContent=v.n;$("ttl").textContent=v.t;
+  st.classList.toggle("blank",!!v.b);
+  st.classList.toggle("prayer",!!v.pr);
+  if(v.pm)$("ptxt").textContent=v.pm;
+  applyBg(st,v.bg||"default");
+}
+// Setlists are now "events": a name plus an optional date/time, each holding its own
+// ordered list of song ids. An event with no date is "unscheduled" — always available,
+// never auto-picked away from by the clock. Older saved data only had one flat
+// `setlist` array; migrateData() wraps that into a single unscheduled event so nothing
+// anyone already built is lost.
+function migrateData(d){
+  if(!d)return null;
+  if(Array.isArray(d.events))return{lib:d.lib,events:d.events};
+  if(Array.isArray(d.setlist))return{lib:d.lib,events:[{id:"quick",name:"Quick setlist",date:null,time:null,setlist:d.setlist}]};
+  return null;
+}
+let lib=SONGS.map((s,i)=>({id:"d"+i,t:s.t,l:s.l}));
+let events=[{id:"quick",name:"Quick setlist",date:null,time:null,setlist:lib.map(s=>s.id)}];
+try{const m=migrateData(JSON.parse(localStorage.getItem(KEY)));if(m){lib=m.lib;events=m.events}}catch(e){}
+function activeEvent(){return events.find(e=>e.id===activeEventId)||events[0]}
+function localDateStr(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function localTimeStr(d){return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
+function fmtDate(ds){if(!ds)return"";const d=new Date(ds+"T00:00:00");return d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}
+function fmtTime(ts){if(!ts)return"";const[h,m]=ts.split(":").map(Number);return new Date(2000,0,1,h,m).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"})}
+// Picks whichever event the clock says should be live right now: the most recently
+// started dated+timed event (on any day, not just today) — so once a scheduled
+// setlist's time arrives it takes over and stays active, even across days, until a
+// later-scheduled one starts. Falls back to the permanent unscheduled "Quick setlist"
+// only when nothing scheduled has started yet. Re-checked periodically (see
+// autoSwitchIfNeeded below) so the operator's screen updates itself through a
+// scheduled transition without needing a reload, and only ever shows one setlist.
+function autoPickEvent(){
+  const now=new Date(),nowKey=localDateStr(now)+" "+localTimeStr(now);
+  const dated=events.filter(e=>e.date&&e.time).sort((a,b)=>(a.date+" "+a.time).localeCompare(b.date+" "+b.time));
+  const started=dated.filter(e=>(e.date+" "+e.time)<=nowKey);
+  if(started.length)return started[started.length-1].id;
+  const quick=events.find(e=>!e.date);
+  return quick?quick.id:(events[0]&&events[0].id);
+}
+// Re-checked on a timer so a scheduled setlist automatically takes over the operator
+// screen right at its start time, with nobody needing to click anything or reload the
+// page. Only acts when the schedule has actually moved on to a different event since
+// the last check (lastAutoId) — not merely whenever it disagrees with what's currently
+// open — so a setlist someone deliberately opened via "Open" isn't fought every 30
+// seconds; it's honored until the next setlist's time genuinely arrives.
+let lastAutoId=null;
+function autoSwitchIfNeeded(){
+  const id=autoPickEvent();
+  if(id===lastAutoId)return;
+  lastAutoId=id;
+  if(!id||id===activeEventId||!events.find(e=>e.id===id))return;
+  const prevName=activeEvent().name;
+  activeEventId=id;setlist=activeEvent().setlist;
+  rebuild();render();renderEditor();updateSetHeader();renderPlan();
+  if(view==="op"){const m=$("msg");if(m)m.textContent='Now showing "'+activeEvent().name+'" (switched automatically from "'+prevName+'").'}
+}
+let activeEventId=autoPickEvent(),setlist=activeEvent().setlist;
+lastAutoId=activeEventId;
+let ACTIVE=[],W=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify({lib,events}))}catch(e){}pushLib()}
+function updateSetHeader(){
+  const e=activeEvent(),t=$("setTitle"),w=$("setWhen");
+  if(t)t.textContent=e.name;
+  if(w)w.textContent=e.date?fmtDate(e.date)+(e.time?" · "+fmtTime(e.time):""):"Unscheduled";
+}
+function selectEvent(id){activeEventId=id;setlist=activeEvent().setlist;$("planModal").hidden=true;rebuild();render();renderEditor();updateSetHeader()}
+function rebuild(){
+  const d0=lib.find(x=>x.id==="d0");if(d0&&d0.l.length===SONGS[0].l.length&&!d0.l.some(x=>x.includes("[")))d0.l=SONGS[0].l.slice();
+  const id=ACTIVE[cur.s]&&ACTIVE[cur.s].id;
+  ACTIVE=setlist.map(i=>lib.find(x=>x.id===i)).filter(x=>x&&x.l.length);
+  W=ACTIVE.map(x=>x.l.map(l=>norm(plain(l))));
+  const k=ACTIVE.findIndex(x=>x.id===id);
+  cur=k<0?{s:0,l:-1}:{s:k,l:cur.l};
+}
+function change(){save();rebuild();render();renderEditor()}
+const esc=t=>t.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function move(i,d){const j=i+d;if(j<0||j>=setlist.length)return;[setlist[i],setlist[j]]=[setlist[j],setlist[i]];change()}
+function add(id){if(!setlist.includes(id)){setlist.push(id);bumpUsage(id)}change()}
+function rm(i){setlist.splice(i,1);change()}
+function libRows(q){
+  const addedCat=new Set(lib.filter(x=>x.cat!=null).map(x=>x.cat));
+  const extra=CAT.map((t,i)=>({id:"c"+i,t,l:[],cat:i,virtual:true})).filter(x=>!addedCat.has(x.cat));
+  let rows=lib.concat(extra);
+  if(q){rows=rows.map(s=>({...s,sc:score(s.t,q)})).filter(s=>s.sc>=.5).sort((a,b)=>b.sc-a.sc)}
+  return rows;
+}
+function renderEditor(){
+  renderSug();
+  const missing=setlist.map(id=>lib.find(x=>x.id===id)).filter(s=>s&&!s.l.length).length;
+  const nb=$("nb");if(nb){nb.hidden=!missing;nb.textContent=missing?"⚠ "+missing:""}
+  const nowId=ACTIVE[cur.s]&&cur.l>=0?ACTIVE[cur.s].id:null;
+  $("set").innerHTML=setlist.length?setlist.map((id,i)=>{const s=lib.find(x=>x.id===id);if(!s)return"";
+    return `<div class="it${id===nowId?" now":""}"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span><button aria-label="Move up" onclick="move(${i},-1)">↑</button><button aria-label="Move down" onclick="move(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rm(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs from the library below.</p>";
+  const csEl=$("cs"),q=csEl?csEl.value.trim():"",rows=libRows(q);
+  $("lib").innerHTML=rows.length?rows.map(s=>{
+    const on=setlist.includes(s.id),locked=needsCcli(s)&&!ccliUnlocked();
+    const lockBtn=`<button disabled title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number">🔒 Locked</button>`;
+    let leftBtn,rightBtn;
+    if(s.virtual){
+      leftBtn=locked?"":`<button onclick="addLyricsCat(${s.cat})">Add lyrics</button>`;
+      rightBtn=locked?lockBtn:`<button onclick="addCat(${s.cat})">Add</button>`;
+    }else{
+      leftBtn=`<button onclick="edit('${s.id}')">${s.l.length?"Edit":"Add lyrics"}</button>`;
+      rightBtn=locked?lockBtn:`<button ${on?"disabled":""} onclick="add('${s.id}')">${on?"Added":"Add"}</button>`;
+    }
+    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${leftBtn}${rightBtn}</div>`}).join(""):"<p class='note'>No matches.</p>";
+  const lo=$("libOpen");if(lo)lo.setAttribute("aria-label","Song Library ("+lib.length+" songs)");
+}
+const CAT="Goodness of God|Great Are You Lord|Gratitude|Build My Life|House of the Lord|Graves into Gardens|What a Beautiful Name|Firm Foundation (He Won't)|I Speak Jesus|Living Hope|Way Maker|This Is Amazing Grace|King of Kings|How Great Is Our God|Glorious Day|Battle Belongs|10,000 Reasons (Bless the Lord)|How Great Thou Art|Same God|I Thank God|Who You Say I Am|In Christ Alone|Lord I Need You|Great Things|Worthy of It All|Raise a Hallelujah|Holy Spirit|Amazing Grace (My Chains Are Gone)|This Is Our God|O Come to the Altar|God So Loved|O Praise the Name (Anastasis)|Holy Forever|Rest on Us|Good Good Father|Cornerstone|Revelation Song|Make Room|Reckless Love|The Lion and the Lamb|How Deep the Father's Love for Us|Yet Not I but Through Christ in Me|Christ Be Magnified|King of My Heart|Here I Am to Worship|The Blessing|We Praise You|Thank You Jesus for the Blood|Blessed Be Your Name|Because He Lives|All Hail King Jesus|Jesus Paid It All|His Mercy Is More|Yes I Will|No Longer Slaves|Praise|Victory in Jesus|Hymn of Heaven|Death Was Arrested|Nothing Else|Open the Eyes of My Heart|See a Victory|Promises|Run to the Father|Do It Again|The Heart of Worship|Mighty to Save|Jesus Messiah|How He Loves|Trust in God|Agnus Dei|Oceans (Where Feet May Fail)|Our God|Hosanna (Praise Is Rising)|My Testimony|A Thousand Hallelujahs|Shout to the Lord|Worthy|Take You at Your Word|Your Grace Is Enough|The Lord's Prayer (It's Yours)|What He's Done|Open Up the Heavens|Honey in the Rock|Tremble|You Are My King (Amazing Love)|I'll Fly Away|Is He Worthy|You've Already Won|My Jesus|This I Believe (The Creed)|I Exalt Thee|Christ Our Hope in Life and Death|Rattle!|I Love You Lord|Everlasting God|Stand in Your Love|Forever|Only a Holy God|There's Nothing That Our God Can't Do|Jesus We Love You".split("|");
+// Fuzzy title score, 0 to 4: substring beats word-prefix beats one-typo word matches.
+const STOP=new Set("of the a an and to in is my our you your i it for on".split(" "));
+function score(title,q){
+  const t=norm(title);let qw=norm(q);
+  const kw=qw.filter(w=>!STOP.has(w));if(kw.length)qw=kw;
+  if(!qw.length)return 0;
+  const tl=t.join(" "),ql=qw.join(" ");
+  if(tl.includes(ql))return 3+(tl.startsWith(ql)?1:0);
+  let n=0;
+  for(const w of qw){
+    if(t.some(x=>x.startsWith(w)))n+=1;
+    else if(t.some(x=>eq(x,w)||(w.length>3&&lev(x.slice(0,w.length),w)<=1)))n+=.7;
+  }
+  return n/qw.length;
+}
+let SUG=[];
+function renderSug(){
+  const q=$("q").value.trim(),box=$("sug");
+  if(!q){box.innerHTML="";SUG=[];return}
+  const inSet=new Set(setlist),c=[];
+  lib.forEach(s=>{if(!inSet.has(s.id)){const sc=score(s.t,q);if(sc>=.5)c.push({t:s.t,sc:sc+.05,k:"lib",id:s.id,tag:"In your library"})}});
+  CAT.forEach((t,i)=>{if(!lib.some(x=>x.cat===i)){const sc=score(t,q);if(sc>=.5)c.push({t,sc,k:"cat",id:i,tag:ccliUnlocked()?"Song catalog":"Song catalog — CCLI license required"})}});
+  c.sort((a,b)=>b.sc-a.sc);SUG=c.slice(0,8);
+  box.innerHTML=SUG.length?SUG.map((x,n)=>{
+    const locked=x.k==="cat"&&!ccliUnlocked();
+    return `<div class="it"><span class="grow">${esc(x.t)} <small>${x.tag}</small></span><button class="p" ${locked?"disabled":""} onclick="pick(${n})" ${locked?'title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number"':""}>${locked?"🔒 Locked":"Add to setlist"}</button></div>`;
+  }).join(""):"<p class='note'>No similar songs. You can add it with Add a song below.</p>";
+}
+function pick(n){const x=SUG[n];if(!x)return;$("q").value="";if(x.k==="lib")add(x.id);else addCat(x.id)}
+function addCat(i){
+  const existing=lib.find(x=>x.cat===i);if(existing)return existing.id;
+  if(!ccliUnlocked()){const m=$("msg");if(m)m.textContent="Enter your CCLI license number in Settings to add CCLI Top 100 songs.";return null}
+  const id="c"+i;lib.push({id,t:CAT[i],l:[],cat:i});setlist.push(id);bumpUsage(id);change();return id;
+}
+function addLyricsCat(i){const id=addCat(i);if(id)edit(id)}
+let editing=null;
+function edit(id){
+  const s=lib.find(x=>x.id===id);if(!s)return;
+  if(needsCcli(s)&&!ccliUnlocked()){
+    editing=id;
+    $("ft").value=s.t;$("fl").value="";
+    $("ft").disabled=true;$("fl").disabled=true;$("fsave").disabled=true;
+    $("fh").textContent="CCLI license required";
+    $("fdel").hidden=false;$("fcancel").hidden=false;
+    $("fmsg").textContent="Enter your CCLI license number in Settings before adding or editing lyrics for this CCLI Top 100 song. You can still remove it from your library below.";
+    openAddSong();
+    $("fh").scrollIntoView({behavior:"smooth",block:"nearest"});
+    return;
+  }
+  editing=id;$("ft").value=s.t;$("fl").value=s.l.join("\n");$("fh").textContent="Edit song";$("fdel").hidden=$("fcancel").hidden=false;openAddSong();$("fh").scrollIntoView({behavior:"smooth",block:"nearest"})}
+function resetForm(){editing=null;$("ft").value=$("fl").value="";$("ft").disabled=false;$("fl").disabled=false;$("fsave").disabled=false;$("fh").textContent="Add a song";$("fdel").hidden=$("fcancel").hidden=true}
+function openAddSong(){$("addSong").hidden=false;$("addSongOpen").setAttribute("aria-expanded","true")}
+function closeAddSong(){$("addSong").hidden=true;$("addSongOpen").setAttribute("aria-expanded","false");resetForm()}
+$("addSongOpen").onclick=()=>{if($("addSong").hidden)openAddSong();else closeAddSong()};
+$("fsave").onclick=()=>{
+  if(editing){const cur=lib.find(x=>x.id===editing);if(cur&&needsCcli(cur)&&!ccliUnlocked()){$("fmsg").textContent="Enter your CCLI license number in Settings first.";return}}
+  const t=$("ft").value.trim(),l=$("fl").value.split("\n").map(x=>x.trim()).filter(Boolean);
+  if(!t||!l.length){$("fmsg").textContent="Enter a title and at least one lyric line.";return}
+  if(editing){const s=lib.find(x=>x.id===editing);s.t=t;s.l=l}
+  else{const id="u"+Date.now();lib.push({id,t,l});setlist.push(id)}
+  resetForm();$("fmsg").textContent="Saved "+t+".";change()};
+$("fdel").onclick=()=>{
+  lib=lib.filter(x=>x.id!==editing);
+  events.forEach(e=>{e.setlist=e.setlist.filter(x=>x!==editing)});
+  setlist=activeEvent().setlist;
+  resetForm();change();renderPlan();
+};
+$("fcancel").onclick=closeAddSong;
+$("libOpen").onclick=()=>{$("libModal").hidden=false};
+$("libClose").onclick=()=>{$("libModal").hidden=true;closeAddSong()};
+$("libModal").addEventListener("click",e=>{if(e.target===$("libModal")){$("libModal").hidden=true;closeAddSong()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("libModal").hidden){$("libModal").hidden=true;closeAddSong()}if(!$("planModal").hidden){$("planModal").hidden=true;resetEventForm()}}});
+
+// ---- Planner: upcoming/past setlists (events), create/edit/delete, switch the active one ----
+let planShowPast=false,editingEvent=null;
+function cmpEv(a,b){
+  if(!a.date&&!b.date)return 0;
+  if(!a.date)return -1;
+  if(!b.date)return 1;
+  return(a.date+" "+(a.time||"00:00")).localeCompare(b.date+" "+(b.time||"00:00"));
+}
+function evRow(e){
+  const on=e.id===activeEventId;
+  const when=e.date?esc(fmtDate(e.date))+(e.time?" · "+esc(fmtTime(e.time)):""):"Unscheduled";
+  const n=e.setlist.length;
+  return `<div class="it${on?" now":""}"><span class="grow">${esc(e.name)} <small>${when} · ${n} song${n===1?"":"s"}</small></span><button aria-label="Songs for ${esc(e.name)}" onclick="manageSongs('${e.id}')">Songs</button><button ${on?"disabled":""} onclick="selectEvent('${e.id}')">${on?"Active":"Open"}</button><button aria-label="Edit ${esc(e.name)}" onclick="editEvent('${e.id}')">Edit</button></div>`;
+}
+function renderPlan(){
+  const today=localDateStr(new Date()),nowT=localTimeStr(new Date());
+  const isPast=e=>e.date&&(e.date<today||(e.date===today&&e.time&&e.time<nowT));
+  const upcoming=events.filter(e=>!isPast(e)).sort(cmpEv);
+  const past=events.filter(isPast).sort((a,b)=>cmpEv(b,a));
+  $("planList").innerHTML=upcoming.length?upcoming.map(evRow).join(""):"<p class='note'>No upcoming setlists yet — add one below.</p>";
+  const pt=$("planPastToggle");
+  if(pt){pt.hidden=!past.length;pt.textContent=planShowPast?"Hide past":"Show past ("+past.length+")"}
+  $("planPast").innerHTML=planShowPast?past.map(evRow).join(""):"";
+}
+function editEvent(id){
+  const e=events.find(x=>x.id===id);if(!e)return;
+  editingEvent=id;$("evName").value=e.name;$("evDate").value=e.date||"";$("evTime").value=e.time||"";
+  $("evh").textContent="Edit setlist";$("evDel").hidden=false;
+  $("songsSearch").value="";renderSongsPanel();
+  const m=$("evMsg");if(m){m.textContent="";m.classList.remove("warn")}
+  $("evh").scrollIntoView({behavior:"smooth"});
+}
+function resetEventForm(){editingEvent=null;draftSongs=[];$("evName").value="";$("evDate").value="";$("evTime").value="";$("evh").textContent="New setlist";$("evDel").hidden=true;$("songsSearch").value="";renderSongsPanel();const m=$("evMsg");if(m){m.textContent="";m.classList.remove("warn")}}
+function delEvent(id){
+  if(events.length<=1)return;
+  events=events.filter(x=>x.id!==id);
+  if(activeEventId===id){activeEventId=lastAutoId=autoPickEvent();setlist=activeEvent().setlist;rebuild();render();renderEditor();updateSetHeader()}
+  save();renderPlan();
+}
+let draftSongs=[];
+function targetSetlist(){
+  if(editingEvent){const e=events.find(x=>x.id===editingEvent);return e?e.setlist:null}
+  return draftSongs;
+}
+function manageSongs(id){editEvent(id);$("songsPanel").scrollIntoView({behavior:"smooth",block:"nearest"})}
+function songScore(s){const u=usage[s.id]||0,pop=s.cat!=null?(100-s.cat):0;return u*2000+pop}
+function recommendedRows(){return libRows("").slice().sort((a,b)=>songScore(b)-songScore(a))}
+function songLibRow(s,sl){
+  const on=sl.includes(s.id),locked=needsCcli(s)&&!ccliUnlocked();
+  const addFn=s.virtual?`addCatToEvent(${s.cat})`:`addToEvent('${s.id}')`;
+  const btn=locked?`<button disabled title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number">🔒 Locked</button>`:`<button ${on?"disabled":""} onclick="${addFn}">${on?"Added":"Add"}</button>`;
+  return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${btn}</div>`;
+}
+// Trims the rendered row list so it (plus everything else in the panel) fits within the
+// modal's max-height, without requiring the user to scroll to reach the Save button. If
+// even one row doesn't fit, shows none rather than a partially-cut-off row.
+function fitSongsLib(rowsHtml){
+  const libEl=$("songsLib"),scroll=$("planScroll");
+  libEl.innerHTML=rowsHtml.join("");
+  if(!rowsHtml.length)return;
+  const otherHeight=scroll.scrollHeight-libEl.scrollHeight;
+  const budget=scroll.clientHeight-otherHeight;
+  const rows=[...libEl.children];
+  let used=0,i=0;
+  for(;i<rows.length;i++){
+    const h=rows[i].getBoundingClientRect().height;
+    if(used+h>budget)break;
+    used+=h;
+  }
+  for(let j=rows.length-1;j>=i;j--)rows[j].remove();
+}
+function renderSongsPanel(){
+  const sl=targetSetlist();if(!sl)return;
+  $("songsH").textContent=editingEvent?"Songs for "+(events.find(x=>x.id===editingEvent)||{name:""}).name:"Songs for this setlist";
+  $("songsCurrent").innerHTML=sl.length?sl.map((id,i)=>{const s=lib.find(x=>x.id===id);if(!s)return"";
+    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${s.l.length?"":`<button onclick="editFromPlan('${s.id}')">Add lyrics</button>`}<button aria-label="Move up" onclick="moveInEvent(${i},-1)">↑</button><button aria-label="Move down" onclick="moveInEvent(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rmFromEvent(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs below.</p>";
+  const q=$("songsSearch").value.trim();
+  if(q){
+    const rows=libRows(q);
+    $("songsLib").innerHTML=rows.length?rows.map(s=>songLibRow(s,sl)).join(""):"<p class='note'>No matches.</p>";
+  }else{
+    const rows=recommendedRows();
+    fitSongsLib(rows.map(s=>songLibRow(s,sl)));
+  }
+}
+function syncIfActive(){if(editingEvent&&editingEvent===activeEventId){setlist=activeEvent().setlist;rebuild();render();renderEditor()}}
+function addToEvent(id){const sl=targetSetlist();if(!sl)return;if(!sl.includes(id)){sl.push(id);bumpUsage(id)}save();renderSongsPanel();renderPlan();syncIfActive()}
+function rmFromEvent(i){const sl=targetSetlist();if(!sl)return;sl.splice(i,1);save();renderSongsPanel();renderPlan();syncIfActive()}
+function moveInEvent(i,d){const sl=targetSetlist();if(!sl)return;const j=i+d;if(j<0||j>=sl.length)return;[sl[i],sl[j]]=[sl[j],sl[i]];save();renderSongsPanel();syncIfActive()}
+function addCatToEvent(i){
+  const existing=lib.find(x=>x.cat===i);
+  if(!existing&&!ccliUnlocked()){const m=$("evMsg");if(m){m.textContent="Enter your CCLI license number in Settings to add CCLI Top 100 songs.";m.classList.add("warn")}return}
+  let id;
+  if(existing)id=existing.id;else{id="c"+i;lib.push({id,t:CAT[i],l:[],cat:i})}
+  addToEvent(id);
+}
+function editFromPlan(id){$("planModal").hidden=true;$("libModal").hidden=false;edit(id)}
+$("songsSearch").oninput=renderSongsPanel;
+let resizeT=null;
+window.addEventListener("resize",()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{if(!$("planModal").hidden)renderSongsPanel()},150)});
+$("evSave").onclick=()=>{
+  try{
+    const name=$("evName").value.trim(),date=$("evDate").value||null,time=date?($("evTime").value||null):null;
+    if(!name){$("evMsg").textContent="Enter a name for the setlist before saving.";$("evMsg").classList.add("warn");$("evName").focus();return}
+    $("evMsg").classList.remove("warn");
+    const wasEditing=!!editingEvent;
+    if(editingEvent){const e=events.find(x=>x.id===editingEvent);e.name=name;e.date=date;e.time=time}
+    else{events.push({id:"e"+Date.now(),name,date,time,setlist:draftSongs.slice()})}
+    resetEventForm();save();renderPlan();updateSetHeader();
+    $("evMsg").textContent=(wasEditing?"Saved. ":"Saved — ")+'"'+name+'" is now listed above'+(wasEditing?".":", under Upcoming setlists.");
+    const row=[...document.querySelectorAll("#planList .it span.grow")].find(s=>s.textContent.trim().startsWith(name));
+    if(row){row.closest(".it").style.outline="2px solid var(--gold)";setTimeout(()=>{if(row.closest(".it"))row.closest(".it").style.outline=""},1800)}
+  }catch(e){
+    $("evMsg").textContent="Couldn't save: "+(e&&e.message?e.message:e)+". Please try again or let the developer know.";
+    $("evMsg").classList.add("warn");
+  }
+};
+$("evDel").onclick=()=>{if(editingEvent)delEvent(editingEvent);resetEventForm()};
+$("evCancel").onclick=resetEventForm;
+$("planOpen").onclick=()=>{$("planModal").hidden=false;renderPlan();renderSongsPanel()};
+$("planClose").onclick=()=>{$("planModal").hidden=true;resetEventForm()};
+$("planModal").addEventListener("click",e=>{if(e.target===$("planModal")){$("planModal").hidden=true;resetEventForm()}});
+$("planPastToggle").onclick=()=>{planShowPast=!planShowPast;renderPlan()};
+function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]==b[j-1]?0:1));p=t}}return d[b.length]}
+const eq=(a,b)=>a===b||(a.length>3&&b.length>3&&lev(a,b)<=1);
+let cur={s:0,l:-1},blank=false;
+// Core matcher: score every setlist line against the last few heard words,
+// then favor lines near the current position so repeated choruses don't jump around.
+function match(heard){
+  const tail=heard.slice(-8);if(tail.length<3)return null;
+  let best=null;
+  W.forEach((song,s)=>song.forEach((lw,l)=>{
+    const m=lw.filter(w=>tail.some(h=>eq(w,h))).length;
+    if(m<3)return;
+    const raw=m/Math.min(lw.length,tail.length);
+    const d=l-cur.l,near=s===cur.s&&d>=0&&d<=2?.12:s===cur.s?.04:0;
+    const sc=raw+near;
+    if(s!==cur.s&&raw<.8)return;
+    if(!best||sc>best.sc)best={s,l,sc,raw};
+  }));
+  return best&&best.sc>=.75?best:null;
+}
+function render(){
+  if(view!=="op")return;
+  const song=ACTIVE[cur.s]||{t:"",l:[]},st=$("stage");
+  st.classList.toggle("blank",blank);
+  st.classList.toggle("prayer",prayer);
+  applyBg(st,bg);
+  $("ptxt").textContent=prayerMsg;
+  $("blank").classList.toggle("on",blank);
+  $("prayerBtn").classList.toggle("on",prayer);
+  $("cur").textContent=!ACTIVE.length?"Add lyrics to a song in the setlist":!song.l.length?"\u26a0 "+song.t+" needs lyrics before it can be matched":cur.l<0?"Sing or type a line to begin":plain(song.l[cur.l]);
+  $("nxt").textContent=cur.l>=0&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"";
+  $("ttl").textContent=cur.l<0?"":song.t;
+  renderEditor();send();
+}
+function hear(text){
+  const h=norm(text);$("heard").textContent=text||"Nothing heard yet.";
+  const m=match(h);
+  $("conf").firstElementChild.style.width=m?Math.min(100,Math.round(m.sc*100))+"%":"0";
+  if(m){cur={s:m.s,l:m.l};blank=false;prayer=false;render()}
+}
+function step(n){
+  const s=ACTIVE[cur.s];if(!s)return;
+  if(cur.l<0)cur.l=0;else cur.l=Math.max(0,Math.min(s.l.length-1,cur.l+n));
+  blank=false;prayer=false;render();
+}
+$("next").onclick=()=>step(1);$("prev").onclick=()=>step(-1);
+$("blank").onclick=()=>{blank=!blank;if(blank)prayer=false;render()};
+$("prayerBtn").onclick=()=>{prayer=!prayer;if(prayer)blank=false;render()};
+$("prayerMsgIn").addEventListener("input",()=>{prayerMsg=$("prayerMsgIn").value.trim()||"Let's Pray";saveAppearance();if(prayer)render()});
+const FS_EXPAND='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+const FS_COMPRESS='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+function updateFsIcon(){
+  const on=document.body.classList.contains("opFull"),btn=$("fs");
+  btn.innerHTML=on?FS_COMPRESS:FS_EXPAND;
+  const label=on?"Exit full screen":"Full screen";
+  btn.title=label;btn.setAttribute("aria-label",label);
+}
+// The immersive "opFull" layout (big stage + controls + Listen panel, everything else
+// hidden) is driven entirely by the opFull class, not by document.fullscreenElement.
+// True browser/OS fullscreen is requested as a nice-to-have on top of it, but some
+// WebViews (notably Android WebViews without extra native plumbing) never resolve
+// requestFullscreen at all — if the layout depended on that succeeding, it would
+// silently fail to engage (or bounce straight back out) in exactly those contexts.
+$("fs").onclick=()=>{
+  if(document.body.classList.contains("opFull")){
+    document.body.classList.remove("opFull");
+    if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+    updateFsIcon();
+    return;
+  }
+  document.body.classList.add("opFull");
+  updateFsIcon();
+  try{
+    const p=document.documentElement.requestFullscreen();
+    if(p&&typeof p.catch==="function")p.catch(()=>{});
+  }catch(e){}
+};
+document.addEventListener("fullscreenchange",()=>{
+  // If the system took us out of native fullscreen (Esc key, swipe, etc.) but we're
+  // still in the opFull layout, drop the layout too so the two stay in sync.
+  if(!document.fullscreenElement&&document.body.classList.contains("opFull")){
+    document.body.classList.remove("opFull");updateFsIcon();
+  }
+});
+updateFsIcon();
+$("settingsBtn").onclick=()=>{
+  const c=$("appearance"),open=c.hidden;
+  c.hidden=!open;
+  $("settingsBtn").classList.toggle("on",open);
+  $("settingsBtn").setAttribute("aria-expanded",open?"true":"false");
+  if(open)c.scrollIntoView({behavior:"smooth",block:"nearest"});
+};
+$("q").addEventListener("input",renderSug);
+$("q").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();pick(0)}});
+$("cs").addEventListener("input",renderEditor);
+$("proj").onclick=()=>{
+  try{
+    const w=window.open(location.href.split("#")[0]+"#display","lyricline-display","popup");
+    if(!w)throw 0;
+    $("msg").textContent="Projector window opened. Drag it to the projector, then click it for full screen.";
+  }catch(e){$("msg").textContent="Couldn't open a window. Open this page in a second tab with #display added to the address."}
+};
+$("sim").addEventListener("input",e=>hear(e.target.value));
+document.addEventListener("keydown",e=>{if(isDisp||e.target.tagName==="INPUT")return;
+  if(e.key==="ArrowRight"||e.key===" ")step(1);if(e.key==="ArrowLeft")step(-1);if(e.key==="b")$("blank").click()});
+// Microphone, native path: the browser's own built-in speech recognition
+// (Chrome/Edge only). Unchanged from the original implementation.
+let rec=null,listening=false,usingLocalAsr=false;
+function startNativeMic(SR){
+  try{
+    rec=new SR();rec.continuous=true;rec.interimResults=true;rec.lang="en-US";
+    rec.onresult=e=>hear(Array.from(e.results).slice(-2).map(r=>r[0].transcript).join(" "));
+    rec.onerror=e=>{$("msg").textContent="Mic error: "+e.error+". Allow microphone access or type below."};
+    rec.onend=()=>{if(listening)try{rec.start()}catch(e){}};
+    rec.start();listening=true;setMicLabel(true);
+  }catch(e){$("msg").textContent="Couldn't start the microphone. Type below instead."}
+}
+// ---- BEGIN local offline ASR fallback (Brave, Firefox, Safari, or offline) ----
+// Only used when the browser has no native speech API. Runs a small Whisper
+// model locally via WebAssembly (asr-worker.js), online the first time to
+// download it, then fully offline. To roll this block back: delete this
+// section plus asr-worker.js and remove the "else" branch in the mic handler
+// below — the native-only behavior above is untouched and still works alone.
+let asrWorker=null,asrCtx=null,asrStream=null,asrNode=null,asrBuf=[],asrTimer=null,asrBusy=false;
+function getAsrWorker(){
+  if(!asrWorker){
+    try{asrWorker=new Worker("asr-worker.js",{type:"module"})}
+    catch(e){$("msg").textContent="This browser can't load the offline speech model. Type below instead.";return null}
+    asrWorker.onmessage=(e)=>{
+      const m=e.data||{};
+      if(m.type==="progress"){
+        const p=m.p||{};
+        if(p.status==="progress"&&p.file){
+          const pct=p.total?Math.round(100*p.loaded/p.total):null;
+          $("msg").textContent="Downloading offline speech model"+(pct!=null?" ("+pct+"%)":"")+"… this happens once, then it works offline.";
+        }
+      }else if(m.type==="ready"){
+        $("msg").textContent="Offline speech model ready. Listening…";
+      }else if(m.type==="result"){
+        asrBusy=false;
+        if(m.text&&m.text.trim())hear(m.text.trim());
+      }else if(m.type==="error"){
+        asrBusy=false;
+        $("msg").textContent="Offline speech recognition couldn't load ("+m.message+"). Type below instead.";
+        if(usingLocalAsr&&listening){
+          stopLocalAsr();listening=false;
+          setMicLabel(false);
+        }
+      }
+    };
+    asrWorker.onerror=()=>{$("msg").textContent="Couldn't load the offline speech model. Type below instead."};
+  }
+  return asrWorker;
+}
+function resampleTo16k(chunks,inRate){
+  let len=0;for(const c of chunks)len+=c.length;
+  const merged=new Float32Array(len);let o=0;
+  for(const c of chunks){merged.set(c,o);o+=c.length}
+  if(inRate===16000)return merged;
+  const ratio=inRate/16000,outLen=Math.max(1,Math.round(merged.length/ratio));
+  const out=new Float32Array(outLen);
+  for(let i=0;i<outLen;i++){
+    const srcPos=i*ratio,i0=Math.floor(srcPos),i1=Math.min(i0+1,merged.length-1),frac=srcPos-i0;
+    out[i]=merged[i0]*(1-frac)+merged[i1]*frac;
+  }
+  return out;
+}
+async function startLocalAsr(){
+  const w=getAsrWorker();if(!w)return false;
+  try{asrStream=await navigator.mediaDevices.getUserMedia({audio:true})}
+  catch(e){$("msg").textContent="Microphone access was blocked. Allow it in the browser's site settings, or type below.";return false}
+  try{
+    asrCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const src=asrCtx.createMediaStreamSource(asrStream);
+    asrNode=asrCtx.createScriptProcessor(4096,1,1);
+    asrBuf=[];
+    asrNode.onaudioprocess=(e)=>{asrBuf.push(new Float32Array(e.inputBuffer.getChannelData(0)))};
+    src.connect(asrNode);asrNode.connect(asrCtx.destination);
+  }catch(e){$("msg").textContent="Couldn't set up audio capture. Type below instead.";return false}
+  $("msg").textContent="This browser has no built-in speech recognition, so loading an offline speech model (needs internet once, then works offline)…";
+  w.postMessage({type:"init"});
+  asrTimer=setInterval(()=>{
+    if(asrBusy||!asrBuf.length)return;
+    const chunks=asrBuf;asrBuf=[];asrBusy=true;
+    const audio=resampleTo16k(chunks,asrCtx.sampleRate);
+    w.postMessage({type:"audio",buffer:audio},[audio.buffer]);
+  },3000);
+  return true;
+}
+function stopLocalAsr(){
+  if(asrTimer)clearInterval(asrTimer);asrTimer=null;
+  if(asrNode){try{asrNode.disconnect()}catch(e){}}asrNode=null;
+  if(asrCtx){try{asrCtx.close()}catch(e){}}asrCtx=null;
+  if(asrStream){asrStream.getTracks().forEach(t=>t.stop())}asrStream=null;
+  asrBuf=[];
+}
+// ---- END local offline ASR fallback ----
+// ---- BEGIN online (cloud) ASR stub ----
+// Placeholder for a future streaming speech-service connection (e.g. Deepgram/
+// AssemblyAI over a websocket). Needs a backend to hold the API key securely —
+// see lyricline-server. Not wired up yet: always reports unavailable so the
+// mic button falls back gracefully instead of breaking.
+async function startOnlineAsr(){
+  $("msg").textContent="Online speech recognition isn't connected yet (no speech-service key set up). Falling back…";
+  return false;
+}
+// ---- END online (cloud) ASR stub ----
+function setMicLabel(on){
+  const b=$("mic"),label=on?"Stop microphone":"Start microphone";
+  b.title=label;b.setAttribute("aria-label",label);b.classList.toggle("on",on);
+}
+$("mic").onclick=async()=>{
+  if(listening){
+    listening=false;
+    if(usingLocalAsr)stopLocalAsr();else rec&&rec.stop();
+    setMicLabel(false);
+    return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(micMode==="online"){
+    if(!onlineKey){$("msg").textContent="Online mode needs a speech-service API key — add one in Settings. Falling back…"}
+    else{const ok=await startOnlineAsr();if(ok)return} // not reachable yet, falls through to the best available engine below
+  }
+  if(micMode!=="offline"&&SR){usingLocalAsr=false;startNativeMic(SR);return}
+  usingLocalAsr=true;
+  const ok=await startLocalAsr();
+  if(ok){listening=true;setMicLabel(true)}
+};
+try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){if(BGS[a.bg])bg=a.bg;if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
+  if(["auto","offline","online"].includes(a.micMode))micMode=a.micMode;if(typeof a.onlineKey==="string")onlineKey=a.onlineKey;
+  if(typeof a.ccliNumber==="string")ccliNumber=a.ccliNumber}}catch(e){}
+renderSwatches();
+$("prayerMsgIn").value=prayerMsg;
+renderMicMode();
+$("micMode").addEventListener("change",()=>{micMode=$("micMode").value;renderMicMode();saveAppearance()});
+$("onlineKeyIn").addEventListener("input",()=>{onlineKey=$("onlineKeyIn").value.trim();saveAppearance()});
+$("ccliNumberIn").value=ccliNumber;
+renderCcliStatus();
+$("ccliNumberIn").addEventListener("input",()=>{
+  ccliNumber=$("ccliNumberIn").value.trim();saveAppearance();renderCcliStatus();
+  renderEditor();renderSongsPanel();renderSug();
+});
+// Custom background: any solid color via the native color picker, or a church-uploaded
+// photo stored through the artifact's assets capability (declared alongside db above).
+let assetsP=null;
+function getAssets(){if(!assetsP)assetsP=(window.claude&&claude.use)?claude.use("assets").catch(()=>null):Promise.resolve(null);return assetsP}
+$("bgColorPick").addEventListener("input",()=>{pickBg("custom:"+$("bgColorPick").value)});
+$("bgImagePick").onclick=()=>{$("bgImageFile").click()};
+$("bgImageFile").addEventListener("change",async()=>{
+  const f=$("bgImageFile").files&&$("bgImageFile").files[0];
+  if(!f)return;
+  const st=$("bgImageStatus");
+  if(st)st.textContent="Uploading…";
+  try{
+    const assets=await getAssets();
+    if(!assets){if(st)st.textContent="Image backgrounds aren't available here.";return}
+    const r=await assets.upload(f);
+    pickBg("image:"+r.url);
+    if(st)st.textContent="Background image set.";
+  }catch(e){
+    if(st)st.textContent="Couldn't upload that image. Please try again.";
+  }
+  $("bgImageFile").value="";
+});
+rebuild();
+updateSetHeader();
+if(bc)bc.onmessage=e=>{
+  const d=e.data;
+  if(view==="op"){if(d.hello){$("msg").textContent="Projector connected.";send()}}
+  else if(!d.hello){if(view==="mus"){MV=d;renderMus()}else show(d)}
+};
+$("stage").onclick=()=>{if(view==="disp"){try{document.documentElement.requestFullscreen()}catch(e){}}};
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+let navT;
+["mousemove","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,()=>{
+  if(view!=="disp")return;
+  const n=$("nav");n.classList.add("show");clearTimeout(navT);navT=setTimeout(()=>n.classList.remove("show"),3500);
+},{passive:true}));
+$("inst").onchange=()=>{try{localStorage.setItem("lyricline.inst",$("inst").value)}catch(e){}renderMus()};
+$("tdn").onclick=()=>{K=Math.max(-11,K-1);renderMus()};
+$("tup").onclick=()=>{K=Math.min(11,K+1);renderMus()};
+setView(view);
+dbP=initDb();
+setInterval(autoSwitchIfNeeded,60000);
+</script></body></html>

@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
+<!--
+  Hymnist. Copyright (c) 2026 Hymnist. All rights reserved.
+  This software and its source code are proprietary. No permission is granted to copy, modify,
+  redistribute, sublicense, reverse engineer, or create derivative works, in whole or in part,
+  without prior written permission from the owner. Provided "AS IS", without warranty of any kind.
+-->
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hymnist</title>
@@ -152,8 +158,16 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <p class="note" style="margin:0 0 4px">Enter your church's CCLI license number to unlock songs from the CCLI Top 100 catalog for adding to setlists. (Verifying it with CCLI isn't connected yet — this records the number locally and gates the catalog, ready for that integration.)</p>
 <input id="ccliNumberIn" placeholder="CCLI license number" autocomplete="off">
 <p class="note" id="ccliStatus" style="margin-top:4px"></p>
+<p class="note" style="margin-top:4px;font-size:12px">Hymnist does not verify your CCLI license and does not grant any rights to song lyrics. You are solely responsible for holding the licenses required to display, project, or reproduce any song.</p>
 <p class="note" style="margin-top:12px">Sync status</p>
-<div id="sync" class="note" style="margin-top:0">Saved on this device only.</div></div>
+<div id="sync" class="note" style="margin-top:0">Saved on this device only.</div>
+<details style="margin-top:14px"><summary class="note" style="cursor:pointer">Legal notice &amp; terms of use</summary>
+<div class="note" style="font-size:12px;line-height:1.5;margin-top:6px">
+<p style="margin:0 0 8px"><b>Copyright.</b> &copy; 2026 Hymnist. All rights reserved. Hymnist, its logo, design, and source code are proprietary and may not be copied, modified, redistributed, reverse engineered, or used to create derivative works without prior written permission.</p>
+<p style="margin:0 0 8px"><b>Song lyrics and licensing.</b> Hymnist is a display tool. It does not provide, sell, or license song lyrics or music, and it does not verify any license. Many songs, including those in the CCLI Top 100 catalog, are protected by copyright and require a valid license (such as CCLI) to display, project, copy, or stream. Entering a license number in Settings is not proof of a valid license. You are solely responsible for confirming that you hold every license needed for the songs you add, display, or share, and for the lyrics and content you enter.</p>
+<p style="margin:0 0 8px"><b>Use at your own risk.</b> Hymnist is provided &ldquo;as is&rdquo; and &ldquo;as available,&rdquo; without warranties of any kind, express or implied, including accuracy, reliability, availability, or fitness for a particular purpose. Speech recognition and lyric matching can be wrong. To the fullest extent permitted by law, Hymnist and its owner are not liable for any claim, loss, or damage arising from your use of the app, including copyright or licensing claims related to content you choose to use with it.</p>
+<p style="margin:0"><b>Privacy.</b> Your library, settings, and any license number are stored on your device (and in your church account if sync is available). Hymnist does not verify or share them with third parties. By using Hymnist you agree to these terms.</p>
+</div></details></div>
 <div class="card" id="listenCard">
 <h2>Listen</h2>
 <div class="row" style="margin:0"><button id="mic" title="Start microphone" aria-label="Start microphone"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><input id="sim" class="grow" placeholder="Or type words as if sung, e.g. I once was lost but now" autocomplete="off"></div>

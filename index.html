@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hymnist</title>
 <link rel="icon" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -246,7 +247,17 @@ const ccliUnlocked=()=>!!ccliNumber.trim();
 // bg is either a preset id (a key in BGS), "custom:<css color>" for a hand-picked solid
 // color, or "image:<url>" for a church-uploaded photo (the url points at an asset
 // uploaded through the assets capability; see bgImagePick's handler below).
+// Anything that reaches the background (localStorage, or the live doc another device writes)
+// is re-validated here so it can never smuggle markup or an arbitrary CSS url() in.
+function cleanBg(v){
+  if(typeof v!=="string")return"default";
+  if(BGS[v])return v;
+  if(/^custom:#[0-9a-fA-F]{3,8}$/.test(v))return v;
+  if(v.length<2048&&/^image:https:\/\/[^\s"'()\\<>]+$/.test(v))return v;
+  return"default";
+}
 function applyBg(st,id){
+  id=cleanBg(id);
   st.style.backgroundImage="";st.style.backgroundSize="";st.style.backgroundPosition="";
   if(id&&id.startsWith("custom:")){st.style.background=id.slice(7);return}
   if(id&&id.startsWith("image:")){st.style.background="";st.style.backgroundImage='url("'+id.slice(6)+'")';st.style.backgroundSize="cover";st.style.backgroundPosition="center";return}
@@ -441,10 +452,24 @@ function show(v){
 // never auto-picked away from by the clock. Older saved data only had one flat
 // `setlist` array; migrateData() wraps that into a single unscheduled event so nothing
 // anyone already built is lost.
+// Saved data comes back from localStorage and from the shared church doc, so it is treated as
+// untrusted: ids (which end up inside inline onclick handlers) are limited to safe characters,
+// and text fields are forced to the types the rest of the app expects.
+const safeId=v=>String(v==null?"":v).replace(/[^A-Za-z0-9_-]/g,"").slice(0,64);
+function cleanData(m){
+  if(!m||!Array.isArray(m.lib)||!Array.isArray(m.events))return m;
+  const S=v=>typeof v==="string"?v:"",D=v=>typeof v==="string"?v:null;
+  m.lib=m.lib.filter(s=>s&&typeof s==="object").map((s,i)=>{
+    const o={...s,id:safeId(s.id)||"x"+i,t:S(s.t),l:Array.isArray(s.l)?s.l.map(S):[]};
+    if(s.cat!==undefined&&s.cat!==null)o.cat=parseInt(s.cat,10)||0;
+    return o});
+  m.events=m.events.filter(e=>e&&typeof e==="object").map((e,i)=>({...e,id:safeId(e.id)||"e"+i,name:S(e.name),date:D(e.date),time:D(e.time),setlist:Array.isArray(e.setlist)?e.setlist.map(safeId):[]}));
+  return m;
+}
 function migrateData(d){
   if(!d)return null;
-  if(Array.isArray(d.events))return{lib:d.lib,events:d.events};
-  if(Array.isArray(d.setlist))return{lib:d.lib,events:[{id:"quick",name:"Quick setlist",date:null,time:null,setlist:d.setlist}]};
+  if(Array.isArray(d.events))return cleanData({lib:d.lib,events:d.events});
+  if(Array.isArray(d.setlist))return cleanData({lib:d.lib,events:[{id:"quick",name:"Quick setlist",date:null,time:null,setlist:d.setlist}]});
   return null;
 }
 let lib=SONGS.map((s,i)=>({id:"d"+i,t:s.t,l:s.l}));
@@ -506,7 +531,7 @@ function rebuild(){
   cur=k<0?{s:0,l:-1}:{s:k,l:cur.l};
 }
 function change(){save();rebuild();render();renderEditor()}
-const esc=t=>t.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function move(i,d){const j=i+d;if(j<0||j>=setlist.length)return;[setlist[i],setlist[j]]=[setlist[j],setlist[i]];change()}
 function add(id){if(!setlist.includes(id)){setlist.push(id);bumpUsage(id)}change()}
 function rm(i){setlist.splice(i,1);change()}
@@ -963,7 +988,7 @@ $("mic").onclick=async()=>{
   const ok=await startLocalAsr();
   if(ok){listening=true;setMicLabel(true)}
 };
-try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){if(BGS[a.bg])bg=a.bg;if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
+try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){bg=cleanBg(a.bg);if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
   if(["auto","offline","online"].includes(a.micMode))micMode=a.micMode;if(typeof a.onlineKey==="string")onlineKey=a.onlineKey;
   if(typeof a.ccliNumber==="string")ccliNumber=a.ccliNumber}}catch(e){}
 renderSwatches();

@@ -141,10 +141,6 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <p class="note" id="fontPrev" style="margin:6px 0 8px;font-size:20px;line-height:1.3">Amazing grace, how sweet the sound</p>
 <label class="note" for="projSize" style="display:block;margin:0 0 2px">Projector lyrics size: <span id="projSizeVal">100%</span></label>
 <input type="range" id="projSize" min="60" max="150" step="5" value="100" style="padding:0;margin-bottom:14px">
-<p class="note" style="margin:0 0 4px">Musicians view font</p>
-<select id="musFontSel" aria-label="Musicians view font"></select>
-<label class="note" for="musSize" style="display:block;margin:8px 0 2px">Musicians view text size: <span id="musSizeVal">100%</span></label>
-<input type="range" id="musSize" min="70" max="220" step="10" value="100" style="padding:0;margin-bottom:14px">
 <p class="note" style="margin:0 0 4px">Background for the projector screen</p>
 <div class="swrow" id="bgsw"></div>
 <div class="swrow">
@@ -222,6 +218,13 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <p class="note" id="evMsg" style="min-height:1.3em"></p>
 </div></div>
 <div id="mus" hidden>
+<div class="row" style="justify-content:flex-end;margin-bottom:6px"><button id="musSettingsBtn" title="Musician settings" aria-label="Musician settings" aria-expanded="false" style="font-size:22px">⚙</button></div>
+<div class="card" id="musSettings" hidden><h2>Musician settings</h2>
+<p class="note" style="margin:0 0 4px">Font</p>
+<select id="musFontSel" aria-label="Musicians view font"></select>
+<label class="note" for="musSize" style="display:block;margin:8px 0 2px">Text size: <span id="musSizeVal">100%</span></label>
+<input type="range" id="musSize" min="70" max="220" step="10" value="100" style="padding:0">
+<p class="note" style="margin:8px 0 0;font-size:12px">These settings apply to the Musicians view on this device only.</p></div>
 <div class="row"><select id="inst" aria-label="Instrument"><option value="guitar">Guitar</option><option value="keys">Piano / Keys</option><option value="bass">Bass</option><option value="vocal">Vocals</option></select>
 <button id="tdn" aria-label="Transpose down">&minus;</button><span id="tk" style="align-self:center;min-width:64px;text-align:center">Key +0</span><button id="tup" aria-label="Transpose up">+</button><button id="tsm" aria-label="Smaller text" title="Smaller text" style="font-size:13px">A&minus;</button><button id="tlg" aria-label="Larger text" title="Larger text" style="font-size:19px">A+</button></div>
 <div id="mt"></div><div id="leg"></div><div id="chart"></div>
@@ -858,6 +861,12 @@ document.addEventListener("fullscreenchange",()=>{
   }
 });
 updateFsIcon();
+$("musSettingsBtn").onclick=()=>{
+  const c=$("musSettings"),open=c.hidden;
+  c.hidden=!open;
+  $("musSettingsBtn").classList.toggle("on",open);
+  $("musSettingsBtn").setAttribute("aria-expanded",open?"true":"false");
+};
 $("settingsBtn").onclick=()=>{
   const c=$("appearance"),open=c.hidden;
   c.hidden=!open;

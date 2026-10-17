@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hymnist</title>
 <link rel="icon" href="favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Instrument+Sans:wght@400;600&family=Lora:wght@400;600&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600&family=Open+Sans:wght@400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4f1ec;--ink:#1d2140;--mut:#6b6f8a;--card:#fff;--line:#d9d5cc;--gold:#b7791f;--stage:#1d2140;--stage-ink:#f4efe4;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -137,6 +137,9 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <button id="fs" title="Full screen" aria-label="Full screen">⛶</button>
 </div>
 <div class="card" id="appearance" hidden><h2>Settings</h2>
+<p class="note" style="margin:0 0 4px">Lyrics font</p>
+<select id="fontSel" aria-label="Lyrics font"></select>
+<p class="note" id="fontPrev" style="margin:6px 0 12px;font-size:20px;line-height:1.3">Amazing grace, how sweet the sound</p>
 <p class="note" style="margin:0 0 4px">Background for the projector screen</p>
 <div class="swrow" id="bgsw"></div>
 <div class="swrow">
@@ -270,6 +273,25 @@ function cleanBg(v){
   if(v.length<2048&&/^image:https:\/\/[^\s"'()\\<>]+$/.test(v))return v;
   return"default";
 }
+// Lyrics font for the projector screen. Stored/synced as a key into FONTS (never raw CSS).
+const FONTS={
+  default:{label:"Newsreader (default)",css:'"Newsreader",Georgia,serif'},
+  lora:{label:"Lora",css:'"Lora",Georgia,serif'},
+  merri:{label:"Merriweather",css:'"Merriweather",Georgia,serif'},
+  playfair:{label:"Playfair Display",css:'"Playfair Display",Georgia,serif'},
+  georgia:{label:"Georgia",css:'Georgia,"Times New Roman",serif'},
+  palatino:{label:"Palatino",css:'"Palatino Linotype",Palatino,"Book Antiqua",serif'},
+  times:{label:"Times New Roman",css:'"Times New Roman",Times,serif'},
+  instrument:{label:"Instrument Sans",css:'"Instrument Sans",Arial,sans-serif'},
+  open:{label:"Open Sans",css:'"Open Sans",Arial,sans-serif'},
+  montserrat:{label:"Montserrat",css:'"Montserrat",Arial,sans-serif'},
+  arial:{label:"Arial",css:'Arial,Helvetica,sans-serif'},
+  verdana:{label:"Verdana",css:'Verdana,Geneva,sans-serif'},
+  trebuchet:{label:"Trebuchet MS",css:'"Trebuchet MS",Arial,sans-serif'}
+};
+let font="default";
+const cleanFont=v=>(typeof v==="string"&&Object.prototype.hasOwnProperty.call(FONTS,v))?v:"default";
+function applyFont(st,k){st.style.fontFamily=FONTS[cleanFont(k)].css}
 function applyBg(st,id){
   id=cleanBg(id);
   st.style.backgroundImage="";st.style.backgroundSize="";st.style.backgroundPosition="";
@@ -286,7 +308,7 @@ function renderSwatches(){
   const ip=$("bgImagePick");
   if(ip)ip.classList.toggle("sel",bg.startsWith("image:"));
 }
-function saveAppearance(){try{localStorage.setItem("lyricline.appearance",JSON.stringify({bg,prayerMsg,micMode,onlineKey,ccliNumber}))}catch(e){}}
+function saveAppearance(){try{localStorage.setItem("lyricline.appearance",JSON.stringify({bg,font,prayerMsg,micMode,onlineKey,ccliNumber}))}catch(e){}}
 function pickBg(id){bg=id;renderSwatches();saveAppearance();render()}
 const MIC_MODE_DESC={
   auto:"Fast built-in recognition when the browser supports it, on-device fallback otherwise.",
@@ -309,7 +331,7 @@ let bc=null;try{bc=new BroadcastChannel("lyricline")}catch(e){}
 let quiet=false;
 function liveState(){
   const song=ACTIVE[cur.s],on=song&&cur.l>=0;
-  return{c:on?plain(song.l[cur.l]):"",n:on&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"",t:on?song.t:"",b:blank,s:on?song.l:[],i:cur.l,bg,pr:prayer,pm:prayerMsg};
+  return{c:on?plain(song.l[cur.l]):"",n:on&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"",t:on?song.t:"",b:blank,s:on?song.l:[],i:cur.l,bg,f:font,pr:prayer,pm:prayerMsg};
 }
 function send(){
   if(isDisp)return;
@@ -347,7 +369,7 @@ async function flushLive(){
 }
 function subLive(){
   if(!liveRef||liveSub)return;
-  liveSub=liveRef.onSnapshot(sn=>{if(sn.exists){const d=sn.data();if(view==="mus"){MV=d;renderMus()}else if(view==="disp")show({c:d.c,n:d.n,t:d.t,b:d.b,bg:d.bg,pr:d.pr,pm:d.pm});setSync("Connected to the operator.")}},syncErr);
+  liveSub=liveRef.onSnapshot(sn=>{if(sn.exists){const d=sn.data();if(view==="mus"){MV=d;renderMus()}else if(view==="disp")show({c:d.c,n:d.n,t:d.t,b:d.b,bg:d.bg,f:d.f,pr:d.pr,pm:d.pm});setSync("Connected to the operator.")}},syncErr);
 }
 function subLib(){
   libRef.onSnapshot(sn=>{
@@ -460,6 +482,7 @@ function show(v){
   st.classList.toggle("prayer",!!v.pr);
   if(v.pm)$("ptxt").textContent=v.pm;
   applyBg(st,v.bg||"default");
+  applyFont(st,v.f);
 }
 // Setlists are now "events": a name plus an optional date/time, each holding its own
 // ordered list of song ids. An event with no date is "unscheduled" — always available,
@@ -800,6 +823,7 @@ function render(){
   st.classList.toggle("blank",blank);
   st.classList.toggle("prayer",prayer);
   applyBg(st,bg);
+  applyFont(st,font);
   $("ptxt").textContent=prayerMsg;
   $("blank").classList.toggle("on",blank);
   $("prayerBtn").classList.toggle("on",prayer);
@@ -1002,7 +1026,7 @@ $("mic").onclick=async()=>{
   const ok=await startLocalAsr();
   if(ok){listening=true;setMicLabel(true)}
 };
-try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){bg=cleanBg(a.bg);if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
+try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){bg=cleanBg(a.bg);font=cleanFont(a.font);if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
   if(["auto","offline","online"].includes(a.micMode))micMode=a.micMode;if(typeof a.onlineKey==="string")onlineKey=a.onlineKey;
   if(typeof a.ccliNumber==="string")ccliNumber=a.ccliNumber}}catch(e){}
 renderSwatches();
@@ -1020,6 +1044,11 @@ $("ccliNumberIn").addEventListener("input",()=>{
 // photo stored through the artifact's assets capability (declared alongside db above).
 let assetsP=null;
 function getAssets(){if(!assetsP)assetsP=(window.claude&&claude.use)?claude.use("assets").catch(()=>null):Promise.resolve(null);return assetsP}
+const fs0=$("fontSel");
+fs0.innerHTML=Object.entries(FONTS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
+function renderFont(){fs0.value=font;$("fontPrev").style.fontFamily=FONTS[font].css}
+renderFont();
+fs0.addEventListener("change",()=>{font=cleanFont(fs0.value);renderFont();saveAppearance();applyFont($("stage"),font);if(view==="op")send()});
 $("bgColorPick").addEventListener("input",()=>{pickBg("custom:"+$("bgColorPick").value)});
 $("bgImagePick").onclick=()=>{$("bgImageFile").click()};
 $("bgImageFile").addEventListener("change",async()=>{

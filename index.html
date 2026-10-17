@@ -81,7 +81,6 @@ input{width:100%;font:16px "Instrument Sans",sans-serif;padding:11px;border-radi
 .it{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
 .warn{color:#b3261e;font-weight:600}
 .chordIcon{font-size:13px;vertical-align:1px}
-.ccliIcon{font-size:10px;font-weight:700;letter-spacing:.2px;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:1px 4px;vertical-align:1px}
 .badge{display:inline-flex;align-items:center;gap:4px;font:600 12px "Instrument Sans",sans-serif;color:#b3261e;background:rgba(179,38,30,.1);border:1px solid rgba(179,38,30,.35);border-radius:6px;padding:2px 6px;margin-left:6px}
 .it:last-child{border:0}
 .it.now .grow{font-weight:600;color:var(--gold)}
@@ -163,17 +162,12 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 </select>
 <p class="note" id="micModeDesc" style="margin-top:4px"></p>
 <input id="onlineKeyIn" placeholder="Online speech API key (not connected yet)" autocomplete="off" style="margin-top:8px">
-<p class="note" style="margin-top:12px">CCLI license</p>
-<p class="note" style="margin:0 0 4px">Enter your church's CCLI license number to unlock songs from the CCLI Top 100 catalog for adding to setlists. (Verifying it with CCLI isn't connected yet — this records the number locally and gates the catalog, ready for that integration.)</p>
-<input id="ccliNumberIn" placeholder="CCLI license number" autocomplete="off">
-<p class="note" id="ccliStatus" style="margin-top:4px"></p>
-<p class="note" style="margin-top:4px;font-size:12px">Hymnist does not verify your CCLI license and does not grant any rights to song lyrics. You are solely responsible for holding the licenses required to display, project, or reproduce any song.</p>
 <p class="note" style="margin-top:12px">Sync status</p>
 <div id="sync" class="note" style="margin-top:0">Saved on this device only.</div>
 <details style="margin-top:14px"><summary class="note" style="cursor:pointer">Legal notice &amp; terms of use</summary>
 <div class="note" style="font-size:12px;line-height:1.5;margin-top:6px">
 <p style="margin:0 0 8px"><b>Copyright.</b> &copy; 2026 Hymnist. All rights reserved. Hymnist, its logo, design, and source code are proprietary and may not be copied, modified, redistributed, reverse engineered, or used to create derivative works without prior written permission.</p>
-<p style="margin:0 0 8px"><b>Song lyrics and licensing.</b> Hymnist is a display tool. It does not provide, sell, or license song lyrics or music, and it does not verify any license. Many songs, including those in the CCLI Top 100 catalog, are protected by copyright and require a valid license (such as CCLI) to display, project, copy, or stream. Entering a license number in Settings is not proof of a valid license. You are solely responsible for confirming that you hold every license needed for the songs you add, display, or share, and for the lyrics and content you enter.</p>
+<p style="margin:0 0 8px"><b>Song lyrics and licensing.</b> Hymnist is a display tool. It does not provide, sell, or license song lyrics or music, and it does not verify any license. Many songs are protected by copyright and require a valid license (such as CCLI) to display, project, copy, or stream. The built-in hymns are believed to be in the public domain in the United States, but that status can differ in other countries, so please check before relying on it. You are solely responsible for confirming that you hold every license needed for the songs you add, display, or share, and for the lyrics and content you enter.</p>
 <p style="margin:0 0 8px"><b>Use at your own risk.</b> Hymnist is provided &ldquo;as is&rdquo; and &ldquo;as available,&rdquo; without warranties of any kind, express or implied, including accuracy, reliability, availability, or fitness for a particular purpose. Speech recognition and lyric matching can be wrong. To the fullest extent permitted by law, Hymnist and its owner are not liable for any claim, loss, or damage arising from your use of the app, including copyright or licensing claims related to content you choose to use with it.</p>
 <p style="margin:0"><b>Privacy.</b> Your library, settings, and any license number are stored on your device (and in your church account if sync is available). Hymnist does not verify or share them with third parties. By using Hymnist you agree to these terms.</p>
 </div></details></div>
@@ -236,16 +230,16 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <script>
 const SONGS=[
 {t:"Amazing Grace",l:["[G]Amazing [G7]grace how [C]sweet the [G]sound","That [G]saved a [Em]wretch like [D]me","I [G]once was [G7]lost but [C]now am [G]found","Was [G]blind but [D]now I [G]see","'Twas [G]grace that [G7]taught my [C]heart to [G]fear","And [G]grace my [Em]fears [D]relieved","How [G]precious [G7]did that [C]grace [G]appear","The [G]hour I [D]first [G]believed"]},
-{t:"It Is Well",l:["When peace like a river attendeth my way","When sorrows like sea billows roll","Whatever my lot thou hast taught me to say","It is well it is well with my soul"]},
-{t:"Holy, Holy, Holy",l:["Holy holy holy Lord God Almighty","Early in the morning our song shall rise to thee","Holy holy holy merciful and mighty","God in three persons blessed Trinity"]}];
+{t:"It Is Well",l:["[D]When peace like a [A7]river [D]attendeth my way,", "[D]When sorrows like [G]sea billows [D]roll;", "[D]Whatever my [A7]lot, thou hast [D]taught me to say,", "[D]It is well, [A7]it is well with my [D]soul.", "[D]It is well, with my [A7]soul,", "[D]It is well, it is [G]well with my [D]soul.", "[D]Though Satan should [A7]buffet, though [D]trials should come,", "[D]Let this blest [G]assurance [D]control,", "[D]That Christ hath re[A7]garded my [D]helpless estate,", "[D]And hath shed His [A7]own blood for my [D]soul.", "[D]It is well, with my [A7]soul,", "[D]It is well, it is [G]well with my [D]soul.", "[D]My sin, oh, the [A7]bliss of this [D]glorious thought!", "[D]My sin, not in [G]part but the [D]whole,", "[D]Is nailed to the [A7]cross, and I [D]bear it no more,", "[D]Praise the Lord, [A7]praise the Lord, O my [D]soul!", "[D]It is well, with my [A7]soul,", "[D]It is well, it is [G]well with my [D]soul.", "[D]For me, be it [A7]Christ, be it [D]Christ hence to live:", "[D]If Jordan a[G]bove me shall [D]roll,", "[D]No pang shall be [A7]mine, for in [D]death as in life", "[D]Thou wilt whisper [A7]Thy peace to my [D]soul.", "[D]It is well, with my [A7]soul,", "[D]It is well, it is [G]well with my [D]soul."]},
+{t:"Holy, Holy, Holy",l:["[D]Holy, holy, [G]holy! Lord God [A7]Almighty!", "[D]Early in the [G]morning our [D]song shall [A7]rise to [D]Thee;", "[D]Holy, holy, [G]holy! Merciful and [A7]mighty!", "[D]God in three [G]Persons, [A7]blessed [D]Trinity!", "[D]Holy, holy, [G]holy! All the saints [A7]adore Thee,", "[D]Casting down their [G]golden crowns a[D]round the glassy [A7]sea;", "[D]Cherubim and [G]seraphim falling [A7]down before Thee,", "[D]Which wert, and [G]art, and [A7]evermore shalt [D]be.", "[D]Holy, holy, [G]holy! Though the [A7]darkness hide Thee,", "[D]Though the eye of [G]sinful man Thy [D]glory may not [A7]see,", "[D]Only Thou art [G]holy; there is [A7]none beside Thee", "[D]Perfect in [G]power, in [A7]love, and [D]purity.", "[D]Holy, holy, [G]holy! Lord God [A7]Almighty!", "[D]All Thy works shall [G]praise Thy name, in [D]earth and sky and [A7]sea;", "[D]Holy, holy, [G]holy! Merciful and [A7]mighty!", "[D]God in three [G]Persons, [A7]blessed [D]Trinity!"]},
+{t:"Be Thou My Vision",l:["[D]Be thou my [G]vision, O [D]Lord of my [A7]heart;", "[D]Naught be all [G]else to me, [D]save that thou [A7]art;", "[D]Thou my best [G]thought, by [D]day or by [A7]night,", "[D]Waking or [G]sleeping, thy [A7]presence my [D]light.", "[D]Be thou my [G]wisdom, and [D]thou my true [A7]word;", "[D]I ever with [G]thee and thou [D]with me, [A7]Lord;", "[D]Thou my great [G]Father, I [D]thy true [A7]son;", "[D]Thou in me [G]dwelling, and [A7]I with thee [D]one.", "[D]Be thou my [G]battle shield, [D]sword for the [A7]fight;", "[D]Be thou my [G]dignity, [D]thou my de[A7]light;", "[D]Thou my soul's [G]shelter, thou [D]my high [A7]tower:", "[D]Raise thou me [G]heavenward, [A7]O Power of my [D]power.", "[D]Riches I [G]heed not, nor [D]man's empty [A7]praise,", "[D]Thou mine in[G]heritance, [D]now and al[A7]ways;", "[D]Thou and thou [G]only, first [D]in my [A7]heart,", "[D]High King of [G]Heaven, my [A7]treasure thou [D]art.", "[D]High King of [G]Heaven, my [D]victory [A7]won,", "[D]May I reach [G]heaven's joys, [D]O bright heaven's [A7]Sun!", "[D]Heart of my [G]own heart, what[D]ever be[A7]fall,", "[D]Still be my [G]vision, [A7]O Ruler of [D]all."]},
+{t:"Great Is Thy Faithfulness",l:["[D]Great is Thy [G]faithfulness, [D]O God my [A7]Father,", "[D]There is no [G]shadow of [D]turning with [A7]Thee;", "[D]Thou changest [G]not, Thy [D]compassions, they [A7]fail not;", "[D]As Thou hast [G]been Thou [A7]forever wilt [D]be.", "[D]Great is Thy [G]faithfulness! [D]Great is Thy [A7]faithfulness!", "[D]Morning by [G]morning new [D]mercies I [A7]see;", "[D]All I have [G]needed Thy [D]hand hath [A7]provided—", "[G]Great is Thy [D]faithfulness, [A7]Lord, unto [D]me!", "[D]Summer and [G]winter, and [D]springtime and [A7]harvest,", "[D]Sun, moon and [G]stars in their [D]courses [A7]above", "[D]Join with all [G]nature in [D]manifold [A7]witness", "[D]To Thy great [G]faithfulness, [A7]mercy and [D]love.", "[D]Great is Thy [G]faithfulness! [D]Great is Thy [A7]faithfulness!", "[D]Morning by [G]morning new [D]mercies I [A7]see;", "[D]All I have [G]needed Thy [D]hand hath [A7]provided—", "[G]Great is Thy [D]faithfulness, [A7]Lord, unto [D]me!", "[D]Pardon for [G]sin and a [D]peace that [A7]endureth,", "[D]Thine own dear [G]presence to [D]cheer and to [A7]guide;", "[D]Strength for [G]today and bright [D]hope for to[A7]morrow,", "[D]Blessings all [G]mine, with [A7]ten thousand [D]beside!", "[D]Great is Thy [G]faithfulness! [D]Great is Thy [A7]faithfulness!", "[D]Morning by [G]morning new [D]mercies I [A7]see;", "[D]All I have [G]needed Thy [D]hand hath [A7]provided—", "[G]Great is Thy [D]faithfulness, [A7]Lord, unto [D]me!"]}];
+// Songs from earlier app versions that were saved before the full chorded versions existed.
+// A saved copy is only upgraded if it still matches the old text exactly (i.e. nobody edited it).
+const SEED_OLD={d1:["When peace like a river attendeth my way", "When sorrows like sea billows roll", "Whatever my lot thou hast taught me to say", "It is well it is well with my soul"],d2:["Holy holy holy Lord God Almighty", "Early in the morning our song shall rise to thee", "Holy holy holy merciful and mighty", "God in three persons blessed Trinity"]};
 const plain=x=>x.replace(/\[[^\]]*\]/g,"");
 const hasChords=s=>s.l.some(l=>/\[[^\]]+\]/.test(l));
 const chordIcon=s=>hasChords(s)?' <span class="chordIcon" title="Includes chords" aria-label="Includes chords">🎸</span>':"";
-// Songs added from the CCLI Top 100 catalog (song.cat is set) are the ones a church needs
-// a CCLI license to display; the original seed hymns and anything typed in by hand aren't
-// flagged, since we have no way to know their licensing.
-const needsCcli=s=>s.cat!=null;
-const ccliIcon=s=>needsCcli(s)?' <span class="ccliIcon" title="Requires a CCLI license to display" aria-label="Requires a CCLI license to display">CCLI</span>':"";
 const norm=t=>t.toLowerCase().replace(/[^a-z\s]/g,"").split(/\s+/).filter(Boolean);
 const $=id=>document.getElementById(id);
 const KEY="lyricline.v1";
@@ -265,8 +259,6 @@ const BGS={
 };
 let bg="default",prayer=false,prayerMsg="Let's Pray";
 let micMode="auto",onlineKey=""; // "auto" | "offline" | "online" — online has no backend wired up yet, see startOnlineAsr()
-let ccliNumber=""; // no CCLI vendor API wired up yet — this just records the number and gates adding CCLI Top 100 songs locally, see needsCcli()/ccliUnlocked() below
-const ccliUnlocked=()=>!!ccliNumber.trim();
 // bg is either a preset id (a key in BGS), "custom:<css color>" for a hand-picked solid
 // color, or "image:<url>" for a church-uploaded photo (the url points at an asset
 // uploaded through the assets capability; see bgImagePick's handler below).
@@ -316,7 +308,7 @@ function renderSwatches(){
   const ip=$("bgImagePick");
   if(ip)ip.classList.toggle("sel",bg.startsWith("image:"));
 }
-function saveAppearance(){try{localStorage.setItem("lyricline.appearance",JSON.stringify({bg,font,musFont,projSize,musSize,prayerMsg,micMode,onlineKey,ccliNumber}))}catch(e){}}
+function saveAppearance(){try{localStorage.setItem("lyricline.appearance",JSON.stringify({bg,font,musFont,projSize,musSize,prayerMsg,micMode,onlineKey}))}catch(e){}}
 function pickBg(id){bg=id;renderSwatches();saveAppearance();render()}
 const MIC_MODE_DESC={
   auto:"Fast built-in recognition when the browser supports it, on-device fallback otherwise.",
@@ -327,11 +319,6 @@ function renderMicMode(){
   const sel=$("micMode");if(sel)sel.value=micMode;
   const d=$("micModeDesc");if(d)d.textContent=MIC_MODE_DESC[micMode]||"";
   const k=$("onlineKeyIn");if(k)k.value=onlineKey;
-}
-function renderCcliStatus(){
-  const el=$("ccliStatus");if(!el)return;
-  el.textContent=ccliUnlocked()?"Unlocked — CCLI Top 100 songs can be added with license #"+ccliNumber+".":"Locked — CCLI Top 100 catalog songs can't be added until a license number is entered above.";
-  el.classList.toggle("warn",!ccliUnlocked());
 }
 let mus=location.hash==="#musician",isDisp=location.hash==="#display"||mus;
 let view=mus?"mus":isDisp?"disp":"op";
@@ -397,11 +384,13 @@ function subLib(){
     // define array index property past the end of an array with non-writable length").
     const fresh=JSON.parse(j);
     lastLib=j;lib=fresh.lib;events=fresh.events;
+    const seeded=mergeSeeds();
     if(!events.find(e=>e.id===activeEventId))activeEventId=lastAutoId=autoPickEvent();
     setlist=activeEvent().setlist;
     try{localStorage.setItem(KEY,j)}catch(e){}
     quiet=true;rebuild();render();renderEditor();renderPlan();updateSetHeader();quiet=false;
     setSync("Synced to your church account.");
+    if(seeded)pushLib();
   },syncErr);
 }
 async function initDb(){
@@ -504,11 +493,13 @@ const safeId=v=>String(v==null?"":v).replace(/[^A-Za-z0-9_-]/g,"").slice(0,64);
 function cleanData(m){
   if(!m||!Array.isArray(m.lib)||!Array.isArray(m.events))return m;
   const S=v=>typeof v==="string"?v:"",D=v=>typeof v==="string"?v:null;
-  m.lib=m.lib.filter(s=>s&&typeof s==="object").map((s,i)=>{
+  // The CCLI Top 100 catalog was removed: drop any catalog songs (they carry a numeric `cat`)
+  // that were saved by an earlier version, along with their setlist entries.
+  const gone=new Set(m.lib.filter(s=>s&&typeof s==="object"&&s.cat!=null).map(s=>safeId(s.id)));
+  m.lib=m.lib.filter(s=>s&&typeof s==="object"&&s.cat==null).map((s,i)=>{
     const o={...s,id:safeId(s.id)||"x"+i,t:S(s.t),l:Array.isArray(s.l)?s.l.map(S):[]};
-    if(s.cat!==undefined&&s.cat!==null)o.cat=parseInt(s.cat,10)||0;
     return o});
-  m.events=m.events.filter(e=>e&&typeof e==="object").map((e,i)=>({...e,id:safeId(e.id)||"e"+i,name:S(e.name),date:D(e.date),time:D(e.time),setlist:Array.isArray(e.setlist)?e.setlist.map(safeId):[]}));
+  m.events=m.events.filter(e=>e&&typeof e==="object").map((e,i)=>({...e,id:safeId(e.id)||"e"+i,name:S(e.name),date:D(e.date),time:D(e.time),setlist:Array.isArray(e.setlist)?e.setlist.map(safeId).filter(id=>!gone.has(id)):[]}));
   return m;
 }
 function migrateData(d){
@@ -520,6 +511,21 @@ function migrateData(d){
 let lib=SONGS.map((s,i)=>({id:"d"+i,t:s.t,l:s.l}));
 let events=[{id:"quick",name:"Quick setlist",date:null,time:null,setlist:lib.map(s=>s.id)}];
 try{const m=migrateData(JSON.parse(localStorage.getItem(KEY)));if(m){lib=m.lib;events=m.events}}catch(e){}
+// Built-in hymns: add any that this device doesn't have yet (unless the user deleted them on
+// purpose) and upgrade untouched older copies. Returns true if the library changed.
+let deletedSeeds=[];try{deletedSeeds=JSON.parse(localStorage.getItem("lyricline.deletedSeeds"))||[]}catch(e){}
+function mergeSeeds(){
+  let changed=false;
+  SONGS.forEach((sg,i)=>{
+    const id="d"+i,cur=lib.find(x=>x.id===id);
+    if(!cur){if(!deletedSeeds.includes(id)){lib.push({id,t:sg.t,l:sg.l.slice()});changed=true}return}
+    const old=SEED_OLD[id];
+    if(old&&JSON.stringify(cur.l)===JSON.stringify(old)){cur.l=sg.l.slice();changed=true}
+  });
+  if(changed){try{localStorage.setItem(KEY,JSON.stringify({lib,events}))}catch(e){}}
+  return changed;
+}
+mergeSeeds();
 function activeEvent(){return events.find(e=>e.id===activeEventId)||events[0]}
 function localDateStr(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function localTimeStr(d){return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
@@ -581,9 +587,7 @@ function move(i,d){const j=i+d;if(j<0||j>=setlist.length)return;[setlist[i],setl
 function add(id){if(!setlist.includes(id)){setlist.push(id);bumpUsage(id)}change()}
 function rm(i){setlist.splice(i,1);change()}
 function libRows(q){
-  const addedCat=new Set(lib.filter(x=>x.cat!=null).map(x=>x.cat));
-  const extra=CAT.map((t,i)=>({id:"c"+i,t,l:[],cat:i,virtual:true})).filter(x=>!addedCat.has(x.cat));
-  let rows=lib.concat(extra);
+  let rows=lib.slice();
   if(q){rows=rows.map(s=>({...s,sc:score(s.t,q)})).filter(s=>s.sc>=.5).sort((a,b)=>b.sc-a.sc)}
   return rows;
 }
@@ -593,23 +597,13 @@ function renderEditor(){
   const nb=$("nb");if(nb){nb.hidden=!missing;nb.textContent=missing?"⚠ "+missing:""}
   const nowId=ACTIVE[cur.s]&&cur.l>=0?ACTIVE[cur.s].id:null;
   $("set").innerHTML=setlist.length?setlist.map((id,i)=>{const s=lib.find(x=>x.id===id);if(!s)return"";
-    return `<div class="it${id===nowId?" now":""}"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span><button aria-label="Move up" onclick="move(${i},-1)">↑</button><button aria-label="Move down" onclick="move(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rm(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs from the library below.</p>";
+    return `<div class="it${id===nowId?" now":""}"><span class="grow">${esc(s.t)}${chordIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span><button aria-label="Move up" onclick="move(${i},-1)">↑</button><button aria-label="Move down" onclick="move(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rm(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs from the library below.</p>";
   const csEl=$("cs"),q=csEl?csEl.value.trim():"",rows=libRows(q);
   $("lib").innerHTML=rows.length?rows.map(s=>{
-    const on=setlist.includes(s.id),locked=needsCcli(s)&&!ccliUnlocked();
-    const lockBtn=`<button disabled title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number">🔒 Locked</button>`;
-    let leftBtn,rightBtn;
-    if(s.virtual){
-      leftBtn=locked?"":`<button onclick="addLyricsCat(${s.cat})">Add lyrics</button>`;
-      rightBtn=locked?lockBtn:`<button onclick="addCat(${s.cat})">Add</button>`;
-    }else{
-      leftBtn=`<button onclick="edit('${s.id}')">${s.l.length?"Edit":"Add lyrics"}</button>`;
-      rightBtn=locked?lockBtn:`<button ${on?"disabled":""} onclick="add('${s.id}')">${on?"Added":"Add"}</button>`;
-    }
-    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${leftBtn}${rightBtn}</div>`}).join(""):"<p class='note'>No matches.</p>";
+    const on=setlist.includes(s.id);
+    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span><button onclick="edit('${s.id}')">${s.l.length?"Edit":"Add lyrics"}</button><button ${on?"disabled":""} onclick="add('${s.id}')">${on?"Added":"Add"}</button></div>`}).join(""):"<p class='note'>No matches.</p>";
   const lo=$("libOpen");if(lo)lo.setAttribute("aria-label","Song Library ("+lib.length+" songs)");
 }
-const CAT="Goodness of God|Great Are You Lord|Gratitude|Build My Life|House of the Lord|Graves into Gardens|What a Beautiful Name|Firm Foundation (He Won't)|I Speak Jesus|Living Hope|Way Maker|This Is Amazing Grace|King of Kings|How Great Is Our God|Glorious Day|Battle Belongs|10,000 Reasons (Bless the Lord)|How Great Thou Art|Same God|I Thank God|Who You Say I Am|In Christ Alone|Lord I Need You|Great Things|Worthy of It All|Raise a Hallelujah|Holy Spirit|Amazing Grace (My Chains Are Gone)|This Is Our God|O Come to the Altar|God So Loved|O Praise the Name (Anastasis)|Holy Forever|Rest on Us|Good Good Father|Cornerstone|Revelation Song|Make Room|Reckless Love|The Lion and the Lamb|How Deep the Father's Love for Us|Yet Not I but Through Christ in Me|Christ Be Magnified|King of My Heart|Here I Am to Worship|The Blessing|We Praise You|Thank You Jesus for the Blood|Blessed Be Your Name|Because He Lives|All Hail King Jesus|Jesus Paid It All|His Mercy Is More|Yes I Will|No Longer Slaves|Praise|Victory in Jesus|Hymn of Heaven|Death Was Arrested|Nothing Else|Open the Eyes of My Heart|See a Victory|Promises|Run to the Father|Do It Again|The Heart of Worship|Mighty to Save|Jesus Messiah|How He Loves|Trust in God|Agnus Dei|Oceans (Where Feet May Fail)|Our God|Hosanna (Praise Is Rising)|My Testimony|A Thousand Hallelujahs|Shout to the Lord|Worthy|Take You at Your Word|Your Grace Is Enough|The Lord's Prayer (It's Yours)|What He's Done|Open Up the Heavens|Honey in the Rock|Tremble|You Are My King (Amazing Love)|I'll Fly Away|Is He Worthy|You've Already Won|My Jesus|This I Believe (The Creed)|I Exalt Thee|Christ Our Hope in Life and Death|Rattle!|I Love You Lord|Everlasting God|Stand in Your Love|Forever|Only a Holy God|There's Nothing That Our God Can't Do|Jesus We Love You".split("|");
 // Fuzzy title score, 0 to 4: substring beats word-prefix beats one-typo word matches.
 const STOP=new Set("of the a an and to in is my our you your i it for on".split(" "));
 function score(title,q){
@@ -631,47 +625,28 @@ function renderSug(){
   if(!q){box.innerHTML="";SUG=[];return}
   const inSet=new Set(setlist),c=[];
   lib.forEach(s=>{if(!inSet.has(s.id)){const sc=score(s.t,q);if(sc>=.5)c.push({t:s.t,sc:sc+.05,k:"lib",id:s.id,tag:"In your library"})}});
-  CAT.forEach((t,i)=>{if(!lib.some(x=>x.cat===i)){const sc=score(t,q);if(sc>=.5)c.push({t,sc,k:"cat",id:i,tag:ccliUnlocked()?"Song catalog":"Song catalog — CCLI license required"})}});
   c.sort((a,b)=>b.sc-a.sc);SUG=c.slice(0,8);
   box.innerHTML=SUG.length?SUG.map((x,n)=>{
-    const locked=x.k==="cat"&&!ccliUnlocked();
-    return `<div class="it"><span class="grow">${esc(x.t)} <small>${x.tag}</small></span><button class="p" ${locked?"disabled":""} onclick="pick(${n})" ${locked?'title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number"':""}>${locked?"🔒 Locked":"Add to setlist"}</button></div>`;
+    return `<div class="it"><span class="grow">${esc(x.t)} <small>${x.tag}</small></span><button class="p" onclick="pick(${n})">Add to setlist</button></div>`;
   }).join(""):"<p class='note'>No similar songs. You can add it with Add a song below.</p>";
 }
-function pick(n){const x=SUG[n];if(!x)return;$("q").value="";if(x.k==="lib")add(x.id);else addCat(x.id)}
-function addCat(i){
-  const existing=lib.find(x=>x.cat===i);if(existing)return existing.id;
-  if(!ccliUnlocked()){const m=$("msg");if(m)m.textContent="Enter your CCLI license number in Settings to add CCLI Top 100 songs.";return null}
-  const id="c"+i;lib.push({id,t:CAT[i],l:[],cat:i});setlist.push(id);bumpUsage(id);change();return id;
-}
-function addLyricsCat(i){const id=addCat(i);if(id)edit(id)}
+function pick(n){const x=SUG[n];if(!x)return;$("q").value="";add(x.id)}
 let editing=null;
 function edit(id){
   const s=lib.find(x=>x.id===id);if(!s)return;
-  if(needsCcli(s)&&!ccliUnlocked()){
-    editing=id;
-    $("ft").value=s.t;$("fl").value="";
-    $("ft").disabled=true;$("fl").disabled=true;$("fsave").disabled=true;
-    $("fh").textContent="CCLI license required";
-    $("fdel").hidden=false;$("fcancel").hidden=false;
-    $("fmsg").textContent="Enter your CCLI license number in Settings before adding or editing lyrics for this CCLI Top 100 song. You can still remove it from your library below.";
-    openAddSong();
-    $("fh").scrollIntoView({behavior:"smooth",block:"nearest"});
-    return;
-  }
   editing=id;$("ft").value=s.t;$("fl").value=s.l.join("\n");$("fh").textContent="Edit song";$("fdel").hidden=$("fcancel").hidden=false;openAddSong();$("fh").scrollIntoView({behavior:"smooth",block:"nearest"})}
 function resetForm(){editing=null;$("ft").value=$("fl").value="";$("ft").disabled=false;$("fl").disabled=false;$("fsave").disabled=false;$("fh").textContent="Add a song";$("fdel").hidden=$("fcancel").hidden=true}
 function openAddSong(){$("addSong").hidden=false;$("addSongOpen").setAttribute("aria-expanded","true")}
 function closeAddSong(){$("addSong").hidden=true;$("addSongOpen").setAttribute("aria-expanded","false");resetForm()}
 $("addSongOpen").onclick=()=>{if($("addSong").hidden)openAddSong();else closeAddSong()};
 $("fsave").onclick=()=>{
-  if(editing){const cur=lib.find(x=>x.id===editing);if(cur&&needsCcli(cur)&&!ccliUnlocked()){$("fmsg").textContent="Enter your CCLI license number in Settings first.";return}}
   const t=$("ft").value.trim(),l=$("fl").value.split("\n").map(x=>x.trim()).filter(Boolean);
   if(!t||!l.length){$("fmsg").textContent="Enter a title and at least one lyric line.";return}
   if(editing){const s=lib.find(x=>x.id===editing);s.t=t;s.l=l}
   else{const id="u"+Date.now();lib.push({id,t,l});setlist.push(id)}
   resetForm();$("fmsg").textContent="Saved "+t+".";change()};
 $("fdel").onclick=()=>{
+  if(/^d\d+$/.test(editing||"")&&!deletedSeeds.includes(editing)){deletedSeeds.push(editing);try{localStorage.setItem("lyricline.deletedSeeds",JSON.stringify(deletedSeeds))}catch(e){}}
   lib=lib.filter(x=>x.id!==editing);
   events.forEach(e=>{e.setlist=e.setlist.filter(x=>x!==editing)});
   setlist=activeEvent().setlist;
@@ -728,13 +703,12 @@ function targetSetlist(){
   return draftSongs;
 }
 function manageSongs(id){editEvent(id);$("songsPanel").scrollIntoView({behavior:"smooth",block:"nearest"})}
-function songScore(s){const u=usage[s.id]||0,pop=s.cat!=null?(100-s.cat):0;return u*2000+pop}
+function songScore(s){const u=usage[s.id]||0;return u*2000}
 function recommendedRows(){return libRows("").slice().sort((a,b)=>songScore(b)-songScore(a))}
 function songLibRow(s,sl){
-  const on=sl.includes(s.id),locked=needsCcli(s)&&!ccliUnlocked();
-  const addFn=s.virtual?`addCatToEvent(${s.cat})`:`addToEvent('${s.id}')`;
-  const btn=locked?`<button disabled title="Enter your CCLI license number in Settings to unlock this song" aria-label="Locked — requires a CCLI license number">🔒 Locked</button>`:`<button ${on?"disabled":""} onclick="${addFn}">${on?"Added":"Add"}</button>`;
-  return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${btn}</div>`;
+  const on=sl.includes(s.id);
+  const btn=`<button ${on?"disabled":""} onclick="addToEvent('${s.id}')">${on?"Added":"Add"}</button>`;
+  return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${btn}</div>`;
 }
 // Trims the rendered row list so it (plus everything else in the panel) fits within the
 // modal's max-height, without requiring the user to scroll to reach the Save button. If
@@ -758,7 +732,7 @@ function renderSongsPanel(){
   const sl=targetSetlist();if(!sl)return;
   $("songsH").textContent=editingEvent?"Songs for "+(events.find(x=>x.id===editingEvent)||{name:""}).name:"Songs for this setlist";
   $("songsCurrent").innerHTML=sl.length?sl.map((id,i)=>{const s=lib.find(x=>x.id===id);if(!s)return"";
-    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)}${ccliIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${s.l.length?"":`<button onclick="editFromPlan('${s.id}')">Add lyrics</button>`}<button aria-label="Move up" onclick="moveInEvent(${i},-1)">↑</button><button aria-label="Move down" onclick="moveInEvent(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rmFromEvent(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs below.</p>";
+    return `<div class="it"><span class="grow">${esc(s.t)}${chordIcon(s)} <small>${s.l.length?s.l.length+" lines":'<span class="warn">⚠ needs lyrics</span>'}</small></span>${s.l.length?"":`<button onclick="editFromPlan('${s.id}')">Add lyrics</button>`}<button aria-label="Move up" onclick="moveInEvent(${i},-1)">↑</button><button aria-label="Move down" onclick="moveInEvent(${i},1)">↓</button><button aria-label="Remove from setlist" onclick="rmFromEvent(${i})">✕</button></div>`}).join(""):"<p class='note'>Empty. Add songs below.</p>";
   const q=$("songsSearch").value.trim();
   if(q){
     const rows=libRows(q);
@@ -772,13 +746,6 @@ function syncIfActive(){if(editingEvent&&editingEvent===activeEventId){setlist=a
 function addToEvent(id){const sl=targetSetlist();if(!sl)return;if(!sl.includes(id)){sl.push(id);bumpUsage(id)}save();renderSongsPanel();renderPlan();syncIfActive()}
 function rmFromEvent(i){const sl=targetSetlist();if(!sl)return;sl.splice(i,1);save();renderSongsPanel();renderPlan();syncIfActive()}
 function moveInEvent(i,d){const sl=targetSetlist();if(!sl)return;const j=i+d;if(j<0||j>=sl.length)return;[sl[i],sl[j]]=[sl[j],sl[i]];save();renderSongsPanel();syncIfActive()}
-function addCatToEvent(i){
-  const existing=lib.find(x=>x.cat===i);
-  if(!existing&&!ccliUnlocked()){const m=$("evMsg");if(m){m.textContent="Enter your CCLI license number in Settings to add CCLI Top 100 songs.";m.classList.add("warn")}return}
-  let id;
-  if(existing)id=existing.id;else{id="c"+i;lib.push({id,t:CAT[i],l:[],cat:i})}
-  addToEvent(id);
-}
 function editFromPlan(id){$("planModal").hidden=true;$("libModal").hidden=false;edit(id)}
 $("songsSearch").oninput=renderSongsPanel;
 let resizeT=null;
@@ -1036,18 +1003,12 @@ $("mic").onclick=async()=>{
 };
 try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){bg=cleanBg(a.bg);font=cleanFont(a.font);musFont=cleanFont(a.musFont);projSize=cleanSize(a.projSize,60,150);musSize=cleanSize(a.musSize,70,220);if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
   if(["auto","offline","online"].includes(a.micMode))micMode=a.micMode;if(typeof a.onlineKey==="string")onlineKey=a.onlineKey;
-  if(typeof a.ccliNumber==="string")ccliNumber=a.ccliNumber}}catch(e){}
+}}catch(e){}
 renderSwatches();
 $("prayerMsgIn").value=prayerMsg;
 renderMicMode();
 $("micMode").addEventListener("change",()=>{micMode=$("micMode").value;renderMicMode();saveAppearance()});
 $("onlineKeyIn").addEventListener("input",()=>{onlineKey=$("onlineKeyIn").value.trim();saveAppearance()});
-$("ccliNumberIn").value=ccliNumber;
-renderCcliStatus();
-$("ccliNumberIn").addEventListener("input",()=>{
-  ccliNumber=$("ccliNumberIn").value.trim();saveAppearance();renderCcliStatus();
-  renderEditor();renderSongsPanel();renderSug();
-});
 // Custom background: any solid color via the native color picker, or a church-uploaded
 // photo stored through the artifact's assets capability (declared alongside db above).
 let assetsP=null;

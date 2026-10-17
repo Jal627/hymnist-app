@@ -92,6 +92,14 @@ textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 p.note{color:var(--mut);font-size:14px;margin:8px 0 0}
 body.mus main>*:not(#mus){display:none}
 body.mus #topbar{display:none}
+/* Musicians toolbar: wraps by group, so controls reflow cleanly on any screen width */
+.mbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:10px 0}
+.mbar select{flex:1 1 150px;min-width:0;max-width:260px}
+.mgrp{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.mgrp button{min-width:44px;padding:10px}
+#musSettingsBtn{order:9;margin-left:auto;font-size:22px;padding:6px 12px}
+#tk{min-width:60px;text-align:center;white-space:nowrap}
+@media (max-width:560px){#musSettingsBtn{order:0;margin-left:0}.mbar select{flex:1 1 60%;max-width:none}}
 #mus[hidden]{display:none}
 select{font:16px "Instrument Sans",sans-serif;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
 #mt{font-weight:600;font-size:calc(22px*var(--ms,1));font-family:var(--mf,"Newsreader",Georgia,serif);margin:10px 0 4px}
@@ -218,15 +226,16 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <p class="note" id="evMsg" style="min-height:1.3em"></p>
 </div></div>
 <div id="mus" hidden>
-<div class="row" style="justify-content:flex-end;margin-bottom:6px"><button id="musSettingsBtn" title="Musician settings" aria-label="Musician settings" aria-expanded="false" style="font-size:22px">⚙</button></div>
+<div class="mbar"><select id="inst" aria-label="Instrument"><option value="guitar">Guitar</option><option value="keys">Piano / Keys</option><option value="bass">Bass</option><option value="vocal">Vocals</option></select>
+<button id="musSettingsBtn" title="Musician settings" aria-label="Musician settings" aria-expanded="false">⚙</button>
+<div class="mgrp" role="group" aria-label="Transpose"><button id="tdn" aria-label="Transpose down">&minus;</button><span id="tk">Key +0</span><button id="tup" aria-label="Transpose up">+</button></div>
+<div class="mgrp" role="group" aria-label="Text size"><button id="tsm" aria-label="Smaller text" title="Smaller text" style="font-size:13px">A&minus;</button><button id="tlg" aria-label="Larger text" title="Larger text" style="font-size:19px">A+</button></div></div>
 <div class="card" id="musSettings" hidden><h2>Musician settings</h2>
 <p class="note" style="margin:0 0 4px">Font</p>
 <select id="musFontSel" aria-label="Musicians view font"></select>
 <label class="note" for="musSize" style="display:block;margin:8px 0 2px">Text size: <span id="musSizeVal">100%</span></label>
 <input type="range" id="musSize" min="70" max="220" step="10" value="100" style="padding:0">
 <p class="note" style="margin:8px 0 0;font-size:12px">These settings apply to the Musicians view on this device only.</p></div>
-<div class="row"><select id="inst" aria-label="Instrument"><option value="guitar">Guitar</option><option value="keys">Piano / Keys</option><option value="bass">Bass</option><option value="vocal">Vocals</option></select>
-<button id="tdn" aria-label="Transpose down">&minus;</button><span id="tk" style="align-self:center;min-width:64px;text-align:center">Key +0</span><button id="tup" aria-label="Transpose up">+</button><button id="tsm" aria-label="Smaller text" title="Smaller text" style="font-size:13px">A&minus;</button><button id="tlg" aria-label="Larger text" title="Larger text" style="font-size:19px">A+</button></div>
 <div id="mt"></div><div id="leg"></div><div id="chart"></div>
 </div>
 </main>

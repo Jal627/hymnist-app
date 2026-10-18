@@ -63,6 +63,15 @@ input{width:100%;font:16px "Instrument Sans",sans-serif;padding:11px;border-radi
 .cardhead button{padding:8px 12px;min-height:36px}
 .modal{position:fixed;inset:0;background:rgba(10,11,26,.55);z-index:30;display:flex;align-items:flex-end;justify-content:center}
 .modal[hidden]{display:none}
+#agreeModal{z-index:80;background:rgba(10,11,26,.88);align-items:center;padding:12px}
+#agreeModal .modalPanel{border-radius:14px;max-height:92vh;display:flex;flex-direction:column;gap:10px}
+#agreeModal h2{margin:0}
+#agreeTerms{overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:120px;flex:1 1 auto}
+#agreeTerms .note{margin:0}
+.agreeRow{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;cursor:pointer}
+.agreeRow input{width:22px;height:22px;flex:none;margin:1px 0 0;min-height:0}
+#agreeBtn[disabled]{opacity:.45;cursor:not-allowed}
+#agreeNo{min-height:0}
 .modalPanel{background:var(--card);border:1px solid var(--line);border-radius:14px 14px 0 0;max-width:640px;width:100%;max-height:82vh;overflow:auto;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 .connbar{margin:0 0 6px;text-align:center}
 #connBtn{min-height:34px;padding:5px 12px;font-size:13px;border-radius:999px;display:inline-flex;gap:7px;align-items:center}
@@ -215,12 +224,12 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <p class="note" style="margin-top:12px">Sync status</p>
 <div id="sync" class="note" style="margin-top:0">Saved on this device only.</div>
 <details style="margin-top:14px"><summary class="note" style="cursor:pointer">Legal notice &amp; terms of use</summary>
-<div class="note" style="font-size:12px;line-height:1.5;margin-top:6px">
+<div class="note" id="legalBox" style="font-size:12px;line-height:1.5;margin-top:6px">
 <p style="margin:0 0 8px"><b>Copyright.</b> &copy; 2026 Hymnist. All rights reserved. Hymnist, its logo, design, and source code are proprietary and may not be copied, modified, redistributed, reverse engineered, or used to create derivative works without prior written permission.</p>
 <p style="margin:0 0 8px"><b>Song lyrics and licensing.</b> Hymnist is a display tool. It does not provide, sell, or license song lyrics or music, and it does not verify any license. Many songs are protected by copyright and require a valid license (such as CCLI) to display, project, copy, or stream. The built-in hymns are believed to be in the public domain in the United States, but that status can differ in other countries, so please check before relying on it. You are solely responsible for confirming that you hold every license needed for the songs you add, display, or share, and for the lyrics and content you enter.</p>
 <p style="margin:0 0 8px"><b>Use at your own risk.</b> Hymnist is provided &ldquo;as is&rdquo; and &ldquo;as available,&rdquo; without warranties of any kind, express or implied, including accuracy, reliability, availability, or fitness for a particular purpose. Speech recognition and lyric matching can be wrong. To the fullest extent permitted by law, Hymnist and its owner are not liable for any claim, loss, or damage arising from your use of the app, including copyright or licensing claims related to content you choose to use with it.</p>
 <p style="margin:0"><b>Privacy.</b> Your library, settings, and any license number are stored on your device (and in your church account if sync is available). Hymnist does not verify or share them with third parties. By using Hymnist you agree to these terms.</p>
-</div></details></div>
+</div><p class="note" id="agreeDate" style="margin:8px 0 0"></p></details></div>
 <div class="card" id="listenCard">
 <h2>Listen</h2>
 <div class="row" style="margin:0"><button id="mic" title="Start microphone" aria-label="Start microphone"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><input id="sim" class="grow" placeholder="Or type words as if sung, e.g. I once was lost but now" autocomplete="off"></div>
@@ -300,7 +309,7 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <dt>My songs and settings disappeared</dt><dd>They are stored in the browser on that device. Clearing the browser&rsquo;s site data, or switching to a different browser or device, starts fresh.</dd>
 <dt>Chords look wrong</dt><dd>The chords on the built-in hymns are simple, standard arrangements. Edit the song in the library to change them.</dd>
 </dl></section><section class="gsec" id="g-about"><h3>About Hymnist</h3><p><b>Hymnist</b> helps churches display song lyrics and keep the band on the same page. &copy; 2026 Hymnist. All rights reserved.</p>
-<p>Hymnist is a display tool. It does not provide or license song lyrics or music, and you are responsible for holding any licenses you need (such as CCLI). It is provided &ldquo;as is&rdquo;, and you use it at your own risk. The full notice is in <b>Settings &rarr; Legal notice &amp; terms of use</b>.</p></section></div>
+<p>Hymnist is a display tool. It does not provide or license song lyrics or music, and you are responsible for holding any licenses you need (such as CCLI). It is provided &ldquo;as is&rdquo;, and you use it at your own risk. The full notice is in <b>Settings &rarr; Legal notice &amp; terms of use</b>. The first time you open Hymnist on a device, you are asked to read and accept these terms; the date you accepted is shown there too. Each device asks once, and again only if the terms change.</p></section></div>
 </div></div>
 <!--GUIDE_END-->
 <div id="mus" hidden>
@@ -1289,6 +1298,34 @@ $("inst").onchange=()=>{try{localStorage.setItem("lyricline.inst",$("inst").valu
 $("tdn").onclick=()=>{K=Math.max(-11,K-1);renderMus()};
 $("tup").onclick=()=>{K=Math.min(11,K+1);renderMus()};
 setView(view);
+// ---- first-launch terms agreement ----
+const TERMS_V=1,AGREE_KEY="lyricline.agreed";
+function readAgree(){try{const a=JSON.parse(localStorage.getItem(AGREE_KEY));return a&&a.v===TERMS_V&&typeof a.at==="number"?a:null}catch(e){return null}}
+let agreedMem=null;
+function agreedInfo(){return readAgree()||agreedMem}
+function showAgreeDate(){const a=agreedInfo(),e=$("agreeDate");if(e)e.textContent=a?"You accepted these terms on "+new Date(a.at).toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"})+".":""}
+function setInert(on){[...document.body.children].forEach(c=>{if(c.id==="agreeModal"||c.tagName==="SCRIPT")return;if(on)c.setAttribute("inert","");else c.removeAttribute("inert")})}
+function openAgree(){
+  document.body.appendChild($("agreeModal"));
+  const src=document.querySelector("#legalBox"),t=$("agreeTerms");
+  t.textContent="";if(src)t.appendChild(src.cloneNode(true)).removeAttribute("id");
+  $("agreeChk").checked=false;$("agreeBtn").disabled=true;$("agreeMsg").hidden=true;
+  $("agreeModal").hidden=false;setInert(true);$("agreeTerms").scrollTop=0;try{$("agreeChk").focus()}catch(e){}
+}
+$("agreeChk").onchange=()=>{$("agreeBtn").disabled=!$("agreeChk").checked};
+$("agreeBtn").onclick=()=>{
+  if(!$("agreeChk").checked)return;
+  agreedMem={v:TERMS_V,at:Date.now()};try{localStorage.setItem(AGREE_KEY,JSON.stringify(agreedMem))}catch(e){}
+  $("agreeModal").hidden=true;setInert(false);showAgreeDate();
+};
+$("agreeNo").onclick=()=>{$("agreeMsg").hidden=false;$("agreeChk").checked=false;$("agreeBtn").disabled=true};
+$("agreeModal").addEventListener("keydown",e=>{
+  if(e.key!=="Tab")return;
+  const f=[...$("agreeModal").querySelectorAll("input,button,[tabindex='0']")].filter(x=>!x.disabled&&x.offsetParent!==null);
+  if(!f.length)return;const a=f[0],z=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
+});
+if(!readAgree())openAgree();else showAgreeDate();
 dbP=initDb();initRoom();
 setInterval(autoSwitchIfNeeded,60000);
 </script></body></html>

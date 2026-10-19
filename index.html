@@ -163,6 +163,26 @@ ol.gsteps{margin:8px 0;padding-left:22px}ol.gsteps li{margin:6px 0}
 #musNote{margin:6px 8px 4px;padding:8px 12px;border-left:4px solid var(--gold);background:rgba(127,127,127,.14);border-radius:6px;font:600 calc(15px*var(--ms,1)) "Instrument Sans",system-ui,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere}
 #musNote[hidden]{display:none}
 .songOnly[hidden]{display:none}
+#dispMode{display:none;position:fixed;right:12px;bottom:12px;z-index:25;background:rgba(10,11,26,.85);color:#f4efe4;border:1px solid rgba(255,255,255,.25);border-radius:8px;min-height:0;padding:6px 8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .3s}
+body.disp #dispMode{display:block}
+#dispMode.show,#dispMode:focus{opacity:1;pointer-events:auto}
+#cfTop{display:none}
+body.disp.sm-lower,body.disp.sm-green{background:transparent}
+body.disp.sm-green{background:#00b140}
+body.sm-lower #stage,body.sm-green #stage{background:transparent!important;justify-content:flex-end;padding:0 5vw 6vh}
+body.sm-lower #cur,body.sm-green #cur{font-size:calc(clamp(24px,4.4vw,80px)*var(--ls,1));background:rgba(8,10,28,.8);padding:.35em .8em;border-radius:.35em;max-width:92vw;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+body.sm-lower #cur:empty,body.sm-green #cur:empty{display:none}
+body.sm-lower #nxt,body.sm-green #nxt,body.sm-lower #stageLogo,body.sm-green #stageLogo,body.sm-lower #ttl,body.sm-green #ttl,body.sm-lower #prayerView,body.sm-green #prayerView,body.sm-lower .bgx,body.sm-green .bgx{display:none}
+body.disp.sm-conf{background:#000}
+body.sm-conf #stage{background:#000!important;color:#fff}
+body.sm-conf #cur{font-size:calc(clamp(40px,8.5vw,150px)*var(--ls,1));line-height:1.15;color:#fff}
+body.sm-conf #nxt{opacity:.8;color:#ffd479;font-size:calc(clamp(24px,4.6vw,84px)*var(--ls,1));margin-top:.6em}
+body.sm-conf #stage.blank #cur,body.sm-conf #stage.blank #nxt,body.sm-conf #stage.prayer #cur{opacity:1}
+body.sm-conf #stage.blank #nxt{opacity:.8}
+body.sm-conf #stage.prayer #nxt{opacity:.8}
+body.sm-conf #prayerView,body.sm-conf #stageLogo,body.sm-conf #ttl,body.sm-conf .bgx{display:none}
+body.sm-conf #cfTop{display:flex;position:absolute;top:2vh;left:3vw;right:3vw;justify-content:space-between;gap:12px;font:600 clamp(14px,2vw,32px) "Instrument Sans",sans-serif;opacity:.75;text-align:left}
+body.sm-conf #cfTop b{color:#ff8a80}
 .bgx{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;opacity:1}
 .fx{animation:fxin var(--fd,.35s) ease backwards}
 @keyframes fxin{from{opacity:0}}
@@ -254,7 +274,7 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <div id="topbar"><h1><img src="logo.png" alt="Hymnist"></h1><button id="settingsBtn" title="Settings" aria-label="Settings" aria-expanded="false" style="font-size:22px">⚙</button></div>
 <nav id="nav" aria-label="Views"><button data-v="op">Operator<span id="nb" class="badge" hidden></span></button><button data-v="mus">Musicians</button><button data-v="disp">Projector</button><button data-v="rem">Remote</button></nav>
 <main>
-<div id="stage"><div id="cur">Sing or type a line to begin</div><div id="nxt"></div><div id="ttl"></div>
+<div id="stage"><div id="cfTop"><span id="cfSec"></span><span id="cfNext"></span></div><div id="cur">Sing or type a line to begin</div><div id="nxt"></div><div id="ttl"></div>
 <div id="prayerView"><div id="ptxt">Let's Pray</div></div>
 <img id="stageLogo" src="stage-logo.png" alt=""></div>
 <div id="opNote" hidden></div>
@@ -282,6 +302,9 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <span><button type="button" class="sw" id="bgImagePick" aria-label="Custom image" title="Custom image">🖼️</button><span class="swlbl">Custom image</span><input type="file" id="bgImageFile" accept="image/*" hidden></span>
 </div>
 <p class="note" id="bgImageStatus" style="margin-top:0;min-height:1.3em"></p>
+<p class="note" style="margin:12px 0 4px">Extra screens</p>
+<div class="row" style="margin:0;gap:8px;flex-wrap:wrap"><button type="button" id="projLower">Open lower-third window</button><button type="button" id="projConf">Open confidence monitor</button></div>
+<p class="note" style="margin:4px 0 0;font-size:12px">A lower third puts the lyrics in a bar at the bottom, for a video stream (add it to OBS as a browser source or window capture). A confidence monitor shows singers a large current and next line. On any projector window, move the mouse to switch what it shows.</p>
 <label class="tidyOpt" style="margin:6px 0 0"><span>Fade between lines and backgrounds</span><select id="fadeSel" aria-label="Fade speed"><option value="off">Off</option><option value="soft">Soft</option><option value="slow">Slow</option></select></label>
 <p class="note" style="margin-top:12px">Message shown when Prayer is on</p>
 <input id="prayerMsgIn" placeholder="Let's Pray" autocomplete="off">
@@ -431,7 +454,10 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <li>Drag that window onto the projector or second display.</li>
 <li>Click inside it once to make it full screen. Press <kbd>Esc</kbd> to leave full screen.</li></ol>
 <p>It follows the Operator screen automatically, including Blank and Prayer. If your browser blocks the pop-up, allow pop-ups for this page, or open the app in a second tab with <code>#display</code> added to the end of the address.</p>
-<div class="gtip"><b>Other devices:</b> the projector window normally needs to be on the same computer and browser as the operator. If <i>Settings &rarr; Sync status</i> says you are connected, other devices follow the operator automatically.</div></section><section class="gsec" id="g-fullscreen"><h4>Backgrounds for a song or a section</h4>
+<div class="gtip"><b>Other devices:</b> the projector window normally needs to be on the same computer and browser as the operator. If <i>Settings &rarr; Sync status</i> says you are connected, other devices follow the operator automatically.</div></section><section class="gsec" id="g-fullscreen"><h4>Lower third and confidence monitor</h4>
+<p>A projector window can show more than full-screen lyrics. Move the mouse over it and use the menu at the bottom right to pick <b>Lyrics (full screen)</b>, <b>Lower third</b>, <b>Lower third on green</b> or <b>Confidence monitor</b>. In <b>Settings &rarr; Extra screens</b>, the <b>Open lower-third window</b> and <b>Open confidence monitor</b> buttons open a window already set up that way.</p>
+<p>A <b>lower third</b> shows only the current line in a dark bar at the bottom, with a see-through background for a video stream. In OBS, add the window as a <b>Window Capture</b>, or use the green version with a chroma-key filter. A <b>confidence monitor</b> is for the singers: a very large current line, the next line in gold, the section and song title at the top, and the next song&rsquo;s name on the last line. It keeps showing the words when the main screen is Blank or Prayer and says so at the top. Each window remembers its own choice, so you can run the main projector, a lower third and a confidence monitor at the same time.</p>
+<h4>Backgrounds for a song or a section</h4>
 <p>Besides the projector background in Settings, any song or slide can have its own. Open it in the Song library (<b>Edit</b>) and choose <b>Projector background for this item</b>: a preset, or <b>Custom color</b>. Songs with section labels can also have a <b>different background for the chorus and bridge</b>, which switches automatically when the lyrics reach those sections. Leave a choice on <b>Same as the projector setting</b> to use the Settings background. Photos can still be used as the main Settings background, but not per song.</p>
 <h4>Fades</h4>
 <p>In <b>Settings</b>, <b>Fade between lines and backgrounds</b> can be <b>Off</b>, <b>Soft</b> (the default) or <b>Slow</b>. Lines fade in and backgrounds cross-fade when they change. If a device is set to reduce motion, the fades are skipped.</p>
@@ -501,6 +527,7 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <div id="mt"></div><div id="leg"></div><div id="musNote" hidden></div><div id="chart"></div>
 </div>
 </main>
+<select id="dispMode" aria-label="What this screen shows"><option value="lyrics">Lyrics (full screen)</option><option value="lower">Lower third</option><option value="green">Lower third on green</option><option value="conf">Confidence monitor</option></select>
 <div id="dispConn" class="connpill" role="status" aria-live="polite">Waiting for the operator…</div>
 <script>
 const SONGS=[
@@ -667,15 +694,17 @@ function renderMicMode(){
   const d=$("micModeDesc");if(d)d.textContent=MIC_MODE_DESC[micMode]||"";
   const k=$("onlineKeyIn");if(k)k.value=onlineKey;
 }
-let mus=location.hash==="#musician",remH=location.hash==="#remote",isDisp=location.hash==="#display"||mus||remH;
+let mus=location.hash==="#musician",remH=location.hash==="#remote",isDisp=/^#display(-(lower|green|confidence))?$/.test(location.hash)||mus||remH;
+let screenMode=({"#display-lower":"lower","#display-green":"green","#display-confidence":"conf"})[location.hash]||"lyrics";
 let view=mus?"mus":remH?"rem":isDisp?"disp":"op";
 let bc=null;try{bc=new BroadcastChannel("lyricline")}catch(e){}
 let quiet=false;
 let remoteOn=false,remotePin="";
 try{const r=JSON.parse(localStorage.getItem("lyricline.remote"));if(r&&typeof r==="object"){remoteOn=!!r.on;remotePin=/^\d{4}$/.test(r.pin)?r.pin:""}}catch(e){}
+function secName(song,i){let n="",at=-1;(song&&Array.isArray(song.sec)?song.sec:[]).forEach(x=>{if(x&&x.i<=i&&x.i>at){at=x.i;n=String(x.n||"").slice(0,30)}});return n}
 function liveState(){
   const song=ACTIVE[cur.s],on=song&&cur.l>=0;
-  return{c:on?plain(song.l[cur.l]):"",n:on&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"",t:on?song.t:"",b:blank,s:on?song.l:[],sc:on?(song.sec||[]):[],sid:on?song.id:"",nt:on?cleanNote(song.note):"",kd:on?cleanK(song.k):0,cp:on?cleanCapo(song.capo):0,i:cur.l,sl:ACTIVE.slice(0,60).map(x=>cleanName(x.t)),si:cur.s,rc:remoteOn?1:0,bg:on?effBg(song,cur.l):bg,fd:fade,f:font,z:projSize,pr:prayer,pm:prayerMsg,op:opLabel(),oid:devId};
+  return{c:on?plain(song.l[cur.l]):"",n:on&&song.l[cur.l+1]?plain(song.l[cur.l+1]):"",t:on?song.t:"",b:blank,s:on?song.l:[],sc:on?(song.sec||[]):[],sid:on?song.id:"",nt:on?cleanNote(song.note):"",kd:on?cleanK(song.k):0,cp:on?cleanCapo(song.capo):0,i:cur.l,sl:ACTIVE.slice(0,60).map(x=>cleanName(x.t)),si:cur.s,sn:on?secName(song,cur.l):"",ns:on&&cur.l>=song.l.length-1&&ACTIVE[cur.s+1]?cleanName(ACTIVE[cur.s+1].t):"",rc:remoteOn?1:0,bg:on?effBg(song,cur.l):bg,fd:fade,f:font,z:projSize,pr:prayer,pm:prayerMsg,op:opLabel(),oid:devId};
 }
 function send(){
   if(isDisp)return;
@@ -719,7 +748,7 @@ function subLive(){
     const fresh=lastDbAt===null?Math.abs(Date.now()-d.at)<45000:d.at!==lastDbAt;lastDbAt=d.at;
     if(fresh&&view!=="op")noteOp("db",d);
     const sig=JSON.stringify({...d,at:0,hb:0});
-    if(sig!==lastLiveSig){lastLiveSig=sig;if(view==="mus"){MV=d;renderMus()}else if(view==="rem"){MV=d;renderRem()}else if(view==="disp")show({c:d.c,n:d.n,t:d.t,b:d.b,bg:d.bg,f:d.f,z:d.z,pr:d.pr,pm:d.pm})}
+    if(sig!==lastLiveSig){lastLiveSig=sig;if(view==="mus"){MV=d;renderMus()}else if(view==="rem"){MV=d;renderRem()}else if(view==="disp")show({c:d.c,n:d.n,t:d.t,b:d.b,bg:d.bg,fd:d.fd,sn:d.sn,ns:d.ns,f:d.f,z:d.z,pr:d.pr,pm:d.pm})}
     setSync("Connected to the operator.")}},syncErr);
 }
 function subLib(){
@@ -844,7 +873,7 @@ function setView(v){
   const prev=view;
   if(prev==="op"&&v!=="op")MV=liveState();
   view=v;isDisp=v!=="op";mus=v==="mus";
-  document.body.classList.toggle("disp",v==="disp");
+  document.body.classList.toggle("disp",v==="disp");applyScreenMode();
   document.body.classList.toggle("mus",v==="mus");
   document.body.classList.toggle("rem",v==="rem");
   $("mus").hidden=v!=="mus";$("rem").hidden=v!=="rem";updateFollowPill();
@@ -868,6 +897,7 @@ function show(v){
   st.classList.toggle("blank",!!v.b);
   st.classList.toggle("prayer",!!v.pr);
   if(v.pm)$("ptxt").textContent=v.pm;
+  {const sec=[typeof v.sn==="string"?v.sn.slice(0,30):"",v.t].filter(Boolean).join(" \u00B7 ");$("cfSec").innerHTML=esc(sec)+(v.b?" \u00B7 <b>SCREEN BLANK</b>":"")+(v.pr?" \u00B7 <b>PRAYER</b>":"");$("cfNext").textContent=typeof v.ns==="string"&&v.ns?"Next song: "+v.ns.slice(0,40):""}
   applyBg(st,v.bg||"default",v.fd);
   fxText(st,(v.c||"")+"\u0001"+(v.n||""),v.fd);
   applyFont(st,v.f,v.z);
@@ -1687,10 +1717,24 @@ setInterval(()=>{setPresence();if(view==="op")renderConn();else{sendHello(false)
 window.addEventListener("pagehide",()=>{try{if(bc&&view!=="op")bc.postMessage({bye:1,id:devId})}catch(e){}});
 $("stage").onclick=()=>{if(view==="disp"){try{document.documentElement.requestFullscreen()}catch(e){}}};
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+function applyScreenMode(){
+  const d=view==="disp",b=document.body.classList;
+  b.toggle("sm-lower",d&&screenMode==="lower");b.toggle("sm-green",d&&screenMode==="green");b.toggle("sm-conf",d&&screenMode==="conf");
+  $("dispMode").value=screenMode;
+}
+$("dispMode").onchange=()=>{const v=$("dispMode").value;screenMode=["lower","green","conf"].includes(v)?v:"lyrics";
+  try{history.replaceState(null,"",location.pathname+location.search+({lower:"#display-lower",green:"#display-green",conf:"#display-confidence"}[screenMode]||"#display"))}catch(e){}
+  applyScreenMode()};
+function openScreen(hash,label){
+  try{const w=window.open(location.href.split("#")[0]+hash,"lyricline-"+hash.slice(1),"popup");if(!w)throw 0;$("msg").textContent=label+" window opened. Drag it to the right screen."}
+  catch(e){$("msg").textContent="Couldn't open a window. Open this page in another tab with "+hash+" added to the address."}
+}
+$("projLower").onclick=()=>openScreen("#display-lower","Lower-third");
+$("projConf").onclick=()=>openScreen("#display-confidence","Confidence monitor");
 let navT;
 ["mousemove","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,()=>{
   if(view!=="disp")return;
-  const n=$("nav");n.classList.add("show");clearTimeout(navT);navT=setTimeout(()=>n.classList.remove("show"),3500);
+  const n=$("nav"),m=$("dispMode");n.classList.add("show");m.classList.add("show");clearTimeout(navT);navT=setTimeout(()=>{n.classList.remove("show");m.classList.remove("show")},3500);
 },{passive:true}));
 $("inst").onchange=()=>{try{localStorage.setItem("lyricline.inst",$("inst").value)}catch(e){}renderMus();sendHello(false)};
 ["wheel","touchmove"].forEach(ev=>document.addEventListener(ev,userScrolled,{passive:true}));

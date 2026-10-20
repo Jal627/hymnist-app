@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en"><head>
-<meta name="robots" content="noindex, nofollow"><meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d2140">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hymnist"><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
 <!--
   Hymnist. Copyright (c) 2026 Hymnist. All rights reserved.
@@ -306,6 +312,8 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <span><button type="button" class="sw" id="bgImagePick" aria-label="Custom image" title="Custom image">🖼️</button><span class="swlbl">Custom image</span><input type="file" id="bgImageFile" accept="image/*" hidden></span>
 </div>
 <p class="note" id="bgImageStatus" style="margin-top:0;min-height:1.3em"></p>
+<div id="installBox" hidden style="margin:0 0 14px"><button type="button" id="installBtn" class="p">Install Hymnist as an app</button><p class="note" style="margin:4px 0 0;font-size:12px">Adds Hymnist to this device and opens it in its own window. Works offline once installed.</p></div>
+<div id="installRow" hidden style="margin:12px 0 4px"><p class="note" style="margin:0 0 4px">Install</p><button type="button" id="installBtn">Install Hymnist as an app</button><p class="note" style="margin:4px 0 0;font-size:12px">Adds Hymnist to this device and opens it in its own window. After the first visit it also opens with no connection.</p></div>
 <p class="note" style="margin:12px 0 4px">Extra screens</p>
 <div class="row" style="margin:0;gap:8px;flex-wrap:wrap"><button type="button" id="projLower">Open lower-third window</button><button type="button" id="projConf">Open confidence monitor</button></div>
 <p class="note" style="margin:4px 0 0;font-size:12px">A lower third puts the lyrics in a bar at the bottom, for a video stream (add it to OBS as a browser source or window capture). A confidence monitor shows singers a large current and next line. On any projector window, move the mouse to switch what it shows.</p>
@@ -481,7 +489,11 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <ol class="gsteps"><li><b>Export backup</b> saves a file with all your songs and setlists. If your device cannot save a file, use <b>Copy backup text</b> and paste it into a note or email to yourself.</li>
 <li><b>Import backup</b> (or <b>Paste backup text</b>) reads a backup from another device. Hymnist shows you what it found before changing anything.</li>
 <li>Choose <b>Add to my library</b> to keep everything you have and add what is missing, or <b>Replace everything</b> to make this device match the backup.</li></ol>
-<div class="gtip"><b>Safe to try.</b> Songs that already exist are skipped, and a song with the same ID but different words is added as a copy marked &ldquo;imported&rdquo;. Right after an import, <b>Undo last import</b> puts everything back. Display settings, fonts and names are not part of a backup.</div></section><section class="gsec" id="g-tips"><h3>Shortcuts and troubleshooting</h3><h4>Keyboard shortcuts (Operator screen)</h4>
+<div class="gtip"><b>Safe to try.</b> Songs that already exist are skipped, and a song with the same ID but different words is added as a copy marked &ldquo;imported&rdquo;. Right after an import, <b>Undo last import</b> puts everything back. Display settings, fonts and names are not part of a backup.</div></section><section class="gsec" id="g-tips"><h3>Installing Hymnist as an app</h3>
+<p>When Hymnist is opened from its own web address (for example the GitHub Pages link), it can be installed so it opens in its own window, and after the first visit it also starts with no internet connection. The copy running inside Claude cannot be installed.</p>
+<p><b>Android or Chrome and Edge on a computer:</b> open <b>Settings</b> and tap <b>Install Hymnist as an app</b>, or use the browser&rsquo;s own install option (the install icon in the address bar, or <b>Add to Home screen</b> in the menu). <b>iPhone or iPad:</b> open the page in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+<p>The installed app updates itself the next time it opens with a connection. Your songs and settings stay on the device, as usual. With no connection the on-device speech recognition still works once its model has been downloaded, but the browser&rsquo;s built-in recognition needs the internet.</p>
+<h3>Shortcuts and troubleshooting</h3><h4>Keyboard shortcuts (Operator screen)</h4>
 <ul class="gkeys"><li><kbd>&rarr;</kbd> or <kbd>Space</kbd> Next line</li><li><kbd>&larr;</kbd> Back</li><li><kbd>B</kbd> Blank the screen</li><li><kbd>Enter</kbd> in the search box adds the first match</li><li><kbd>Esc</kbd> closes a window</li></ul>
 <h4>Something not working?</h4>
 <dl class="gfaq">
@@ -490,7 +502,9 @@ body.disp #nav.show,body.disp #nav:focus-within{opacity:1;pointer-events:auto}
 <dt>The projector window won&rsquo;t open</dt><dd>Allow pop-ups for this page, or open a second tab with <code>#display</code> on the end of the address.</dd>
 <dt>My songs and settings disappeared</dt><dd>They are stored in the browser on that device. Clearing the browser&rsquo;s site data, or switching to a different browser or device, starts fresh.</dd>
 <dt>Chords look wrong</dt><dd>The chords on the built-in hymns are simple, standard arrangements. Edit the song in the library to change them.</dd>
-</dl></section><section class="gsec" id="g-about"><h3>About Hymnist</h3><p><b>Hymnist</b> helps churches display song lyrics and keep the band on the same page. &copy; 2026 Hymnist. All rights reserved.</p>
+</dl></section><section class="gsec" id="g-about"><h3>Installing Hymnist as an app</h3>
+<p>The web copy of Hymnist (not the copy inside Claude) can be installed so it opens in its own window and keeps working with no internet. On <b>Chrome, Edge or Android</b>, open <b>Settings</b> and tap <b>Install Hymnist as an app</b>, or use the install icon in the address bar. On an <b>iPhone or iPad</b>, open the page in Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>. An installed copy refreshes itself when you are online. Songs and settings stay on that device; microphone matching and fonts that were never loaded still need a connection the first time.</p>
+<h3>About Hymnist</h3><p><b>Hymnist</b> helps churches display song lyrics and keep the band on the same page. &copy; 2026 Hymnist. All rights reserved.</p>
 <p>Hymnist is a display tool. It does not provide or license song lyrics or music, and you are responsible for holding any licenses you need (such as CCLI). It is provided &ldquo;as is&rdquo;, and you use it at your own risk. The full notice is in <b>Settings &rarr; Legal notice &amp; terms of use</b>. The first time you open Hymnist on a device, you are asked to read and accept these terms; the date you accepted is shown there too. Each device asks once, and again only if the terms change.</p></section></div>
 </div></div>
 <!--GUIDE_END-->
@@ -1577,6 +1591,12 @@ $("mic").onclick=async()=>{
 try{const a=JSON.parse(localStorage.getItem("lyricline.appearance"));if(a){bg=cleanBg(a.bg);fade=cleanFade(a.fade);font=cleanFont(a.font);musFont=cleanFont(a.musFont);projSize=cleanSize(a.projSize,60,150);musSize=cleanSize(a.musSize,70,220);opName=cleanName(a.opName);devName=cleanName(a.devName);if(typeof a.prayerMsg==="string"&&a.prayerMsg)prayerMsg=a.prayerMsg;
   if(["auto","offline","online"].includes(a.micMode))micMode=a.micMode;if(typeof a.onlineKey==="string")onlineKey=a.onlineKey;
 }}catch(e){}
+// Install as an app (only offered by the hosted web copy, where the browser allows it).
+let installEv=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEv=e;$("installBox").hidden=false});
+window.addEventListener("appinstalled",()=>{installEv=null;$("installBox").hidden=true});
+$("installBtn").onclick=()=>{const e=installEv;if(!e)return;installEv=null;try{e.prompt();e.userChoice.then(()=>{$("installBox").hidden=true}).catch(()=>{})}catch(x){}};
+try{if("serviceWorker" in navigator&&document.querySelector('link[rel="manifest"]')&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
 (()=>{const el=$("themeSel");let t="auto";try{const v=localStorage.getItem("lyricline.theme");if(v==="light"||v==="dark")t=v}catch(e){}el.value=t;
   el.onchange=()=>{const v=el.value==="light"||el.value==="dark"?el.value:"auto";try{if(v==="auto")localStorage.removeItem("lyricline.theme");else localStorage.setItem("lyricline.theme",v)}catch(e){}
     if(v==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",v)}})();
@@ -1737,6 +1757,10 @@ function openScreen(hash,label){
   try{const w=window.open(location.href.split("#")[0]+hash,"lyricline-"+hash.slice(1),"popup");if(!w)throw 0;$("msg").textContent=label+" window opened. Drag it to the right screen."}
   catch(e){$("msg").textContent="Couldn't open a window. Open this page in another tab with "+hash+" added to the address."}
 }
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("installRow").hidden=false});
+window.addEventListener("appinstalled",()=>{deferredInstall=null;$("installRow").hidden=true});
+$("installBtn").onclick=async()=>{const d=deferredInstall;if(!d)return;deferredInstall=null;$("installRow").hidden=true;try{d.prompt();await d.userChoice}catch(e){}};
 $("projLower").onclick=()=>openScreen("#display-lower","Lower-third");
 $("projConf").onclick=()=>openScreen("#display-confidence","Confidence monitor");
 let navT;
@@ -2043,4 +2067,5 @@ $("agreeModal").addEventListener("keydown",e=>{
 if(!readAgree())openAgree();else showAgreeDate();
 dbP=initDb();initRoom();
 setInterval(autoSwitchIfNeeded,60000);
-</script></body></html>
+</script><script>if("serviceWorker" in navigator)addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});</script>
+</body></html>
